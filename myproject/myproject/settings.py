@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'user',
     'drf_yasg',
     'authentication', 
+    'role',
    
 ]
 

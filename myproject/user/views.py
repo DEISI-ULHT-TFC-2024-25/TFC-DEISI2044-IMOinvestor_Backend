@@ -14,7 +14,6 @@ class RegisterView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            user = serializer.save()
-            user_type = "Organization" if user.is_organization else "User"
-            return Response({"message": f"{user_type} registered successfully!"}, status=status.HTTP_201_CREATED)
+            serializer.save()
+            return Response({"message": " registered successfully!"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
