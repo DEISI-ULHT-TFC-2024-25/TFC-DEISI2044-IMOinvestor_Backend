@@ -41,14 +41,22 @@ INSTALLED_APPS = [
 
     'core',
     'rest_framework_simplejwt',
-    'user',
     'drf_yasg',
-    'authentication', 
-    'role',
+    'district',
+    'municipality',
+    'organization',
+    'duser',
+    'roles',
+    'property',
+    'user_roles',
+    'user_organizations',
+    'announcements',
+    'property_roi',
+    'property_media',
+
    
 ]
 
-AUTH_USER_MODEL = 'user.User'  # Custom user model
 
 
 
@@ -63,7 +71,7 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
+    'rest_framework.permissions.AllowAny',
     ),
 }
 
