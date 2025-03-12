@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
     'core',
     'rest_framework_simplejwt',
+    
     'drf_yasg',
     'district',
     'municipality',

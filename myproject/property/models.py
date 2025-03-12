@@ -1,6 +1,7 @@
 from django.db import models
 from district.models import District
 from municipality.models import Municipality
+from organization.models import Organization
 
 class Property(models.Model):
     district = models.ForeignKey(District, on_delete=models.CASCADE)
