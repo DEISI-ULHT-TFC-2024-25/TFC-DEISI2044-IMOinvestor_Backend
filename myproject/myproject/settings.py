@@ -115,7 +115,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'tfc_db',
         'USER': 'postgres',  # Replace with your PostgreSQL username
-        'PASSWORD': 'akash',  # Replace with your PostgreSQL password
+        'PASSWORD': 'biro',  # Replace with your PostgreSQL password
         'HOST': 'localhost',
         'PORT': '5432',
     }
