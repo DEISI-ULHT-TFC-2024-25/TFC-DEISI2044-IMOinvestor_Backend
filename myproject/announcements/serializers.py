@@ -4,4 +4,4 @@ from .models import Announcement
 class AnnouncementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Announcement
-        fields = "__all__"  # Ou defina campos específicos, se necessário
+        fields = "__all__"  
