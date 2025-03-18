@@ -1,15 +1,24 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from drf_yasg.utils import swagger_auto_schema
+
+
 from .models import Property
 from .serializers import PropertySerializer
 
 class PropertyCreateView(APIView):
+    queryset = Property.objects.all()
+    serializer_class = PropertySerializer
+
+
+    @swagger_auto_schema(request_body=PropertySerializer)
+
     def post(self, request):
-        # Create a new property using the provided data
-        serializer = PropertySerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
+        
         if serializer.is_valid():
-            # Save the property to the database
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            property_instance = serializer.save()  # Saves and returns the instance
+            return Response(self.serializer_class(property_instance).data, status=status.HTTP_201_CREATED)
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

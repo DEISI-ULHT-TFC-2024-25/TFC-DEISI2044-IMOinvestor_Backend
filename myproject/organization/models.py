@@ -15,7 +15,10 @@ class Organization(models.Model):
     created_date = models.DateTimeField()
     last_modified_by = models.CharField(max_length=255, null=True, blank=True)
     last_modified_date = models.DateTimeField(null=True, blank=True)
+    vat_number = models.CharField(max_length=20, null=True, blank=True)
+    website = models.URLField(null=True,blank=True)
 
+    
     class Meta:
         db_table = 'organization'
 

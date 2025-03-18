@@ -3,7 +3,9 @@ from django.db import models
 class Role(models.Model):
     ROLE_CHOICES = [
         ('SYS_ADMIN', 'System Administrator'),
-        ('USER', 'User')
+        ('INVESTOR', 'Investor'),
+        ('AGENT','Agent'),
+        ('PROMOTER','Promoter'),
     ]
     
     role = models.CharField(max_length=50, unique=True, choices=ROLE_CHOICES)

@@ -21,7 +21,7 @@ class DUserSerializer(serializers.ModelSerializer):
         model = DUser
         fields = [
             'id', 'user_name', 'password_hash', 'first_name', 'last_name', 'email', 
-            'date_of_birth', 'gender', 'lang_key', 'activated', 'last_login', 
+            'date_of_birth', 'lang_key', 'activated', 'last_login', 
             'created_by', 'created_date', 'last_modified_by', 'last_modified_date', 
             'institution_ids'
         ]
@@ -88,7 +88,7 @@ class LoginSerializer(serializers.Serializer):
 class UpdateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = DUser
-        fields = ['first_name', 'last_name', 'email', 'date_of_birth', 'gender', 'lang_key']
+        fields = ['first_name', 'last_name', 'email', 'date_of_birth',  'lang_key']
 
     def update(self, instance, validated_data):
         # Use Django's default method to update the instance with validated data

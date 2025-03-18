@@ -1,16 +1,20 @@
 from django.db import models
 from organization.models import Organization
+
 class DUser(models.Model):
+    """""
     GENDER_CHOICES = [
         ('MALE', 'Male'),
         ('FEMALE', 'Female'),
         ('OTHER', 'Other'),
         ('DONT_WANT_TO_SAY', 'Don\'t want to say')
     ]
+    """
     LANG_KEY_CHOICES = [
         ('PT', 'Portuguese'),
         ('ENG', 'English')
     ]
+    
     
     institution = models.ManyToManyField("organization.Organization", related_name="users")
     user_name = models.CharField(max_length=255, unique=True)
@@ -19,7 +23,6 @@ class DUser(models.Model):
     last_name = models.CharField(max_length=255, null=True, blank=True)
     email = models.EmailField(unique=True, null=True, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
-    gender = models.CharField(max_length=18, choices=GENDER_CHOICES)  # Change max_length to 18
     lang_key = models.CharField(max_length=10, choices=LANG_KEY_CHOICES)
     activated = models.BooleanField()
     last_login = models.DateTimeField(null=True, blank=True)

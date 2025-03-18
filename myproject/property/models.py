@@ -9,6 +9,8 @@ class Property(models.Model):
     name = models.CharField(max_length=255, unique=True)
     street = models.CharField(max_length=510)
     created_by = models.CharField(max_length=255)
+    postal_code = models.CharField(max_length=10)
+    property_type = models.CharField(max_length = 255)
     created_date = models.DateTimeField()
     last_modified_by = models.CharField(max_length=255, null=True, blank=True)
     last_modified_date = models.DateTimeField(null=True, blank=True)
