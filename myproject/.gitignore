@@ -1,0 +1,23 @@
+# Ignore Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environments
+venv/
+env/
+
+# Logs and database files
+*.log
+*.sqlite3
+
+# Ignore environment variables
+.env
+
+# IDE/editor-specific files
+.vscode/
+.idea/
+*.sublime-workspace
+
+# Node modules (if using frontend frameworks)
+node_modules/
