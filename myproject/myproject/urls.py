@@ -26,8 +26,8 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('api/organization/', include('organization.urls')),  # Inclui as rotas da organização
     path('api/user/', include('duser.urls')),  # Inclui as rotas do investidor
-    path('api/announcement', include('announcements.urls')),
-    path('api/property', include('property.urls')),
+    path('api/announcement/', include('announcements.urls')),
+    path('api/property/', include('property.urls')),
 
 
 
