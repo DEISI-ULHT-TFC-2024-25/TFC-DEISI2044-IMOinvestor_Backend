@@ -28,7 +28,6 @@ urlpatterns = [
     path('api/user/', include('duser.urls')),  # Inclui as rotas do investidor
     path('api/announcement/', include('announcements.urls')),
     path('api/property/', include('property.urls')),
-
-
+    path('api/property-media/', include ('property_media.urls')),
 
 ]
