@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
     'core',
     'rest_framework_simplejwt',
+    'django_filters',
     
     'drf_yasg',
     'district',
