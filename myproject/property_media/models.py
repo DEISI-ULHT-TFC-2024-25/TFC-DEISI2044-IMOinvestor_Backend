@@ -2,11 +2,18 @@ from django.db import models
 from property.models import Property
 
 class PropertyMedia(models.Model):
-    property = models.ForeignKey(Property, on_delete=models.CASCADE)
-    created_by = models.CharField(max_length=255)
-    created_date = models.DateTimeField()
-    last_modified_by = models.CharField(max_length=255, null=True, blank=True)
-    last_modified_date = models.DateTimeField(null=True, blank=True)
+    MEDIA_TYPE_CHOICES = [
+        ('image', 'Image'),
+        ('video', 'Video')
+    ]
+
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name="media")
+    file = models.FileField(upload_to="property_media/")
+    media_type = models.CharField(max_length=10, choices=MEDIA_TYPE_CHOICES)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'property_media'
+
+    def __str__(self):
+        return f"{self.property.id} - {self.media_type}"
