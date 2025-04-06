@@ -1,12 +1,16 @@
 from django.db import models
-from property.models import Property
 
-class PropertyRoi(models.Model):
-    property = models.ForeignKey(Property, on_delete=models.CASCADE)
-    created_by = models.CharField(max_length=255)
-    created_date = models.DateTimeField()
-    last_modified_by = models.CharField(max_length=255, null=True, blank=True)
-    last_modified_date = models.DateTimeField(null=True, blank=True)
+class ROICalculation(models.Model):
+    purchase_price = models.DecimalField(max_digits=12, decimal_places=2)
+    closing_costs = models.DecimalField(max_digits=12, decimal_places=2)
+    repair_costs = models.DecimalField(max_digits=12, decimal_places=2)
+    after_repair_value = models.DecimalField(max_digits=12, decimal_places=2)
+    holding_costs = models.DecimalField(max_digits=12, decimal_places=2)
+    selling_costs = models.DecimalField(max_digits=12, decimal_places=2)
+    roi_result = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+    profit = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = 'property_roi'
+        db_table = 'roi_calculations'

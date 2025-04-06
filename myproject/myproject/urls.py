@@ -29,5 +29,6 @@ urlpatterns = [
     path('api/announcement/', include('announcements.urls')),
     path('api/property/', include('property.urls')),
     path('api/property-media/', include ('property_media.urls')),
+    path('api/property-roi/', include('property_roi.urls')),
 
 ]
