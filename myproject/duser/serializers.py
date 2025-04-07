@@ -76,8 +76,17 @@ class LoginSerializer(serializers.Serializer):
         # Gera tokens JWT
         refresh = RefreshToken.for_user(user)
 
+
+        institution_ids = list(user.institution.values_list('id', flat=True))
+        roles = Role.objects.filter(userrole__user=user).values_list('role', flat=True)
+
+
         return {
             "user_id": user.id,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "organization_ids": institution_ids,
+            "role": roles,
             "user_name": user.user_name,
             "access_token": str(refresh.access_token),
             "refresh_token": str(refresh),

@@ -8,8 +8,8 @@ class PropertyMedia(models.Model):
     ]
 
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name="media")
-    file = models.FileField(upload_to="property_media/")
-    media_type = models.CharField(max_length=10, choices=MEDIA_TYPE_CHOICES)
+    file = models.FileField(upload_to="property_media/",null=True, blank=True)
+    media_type = models.CharField(max_length=10, choices=MEDIA_TYPE_CHOICES, default='image')
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
