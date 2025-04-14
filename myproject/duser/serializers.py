@@ -7,10 +7,11 @@ from organization.models import Organization
 from django.utils.timezone import now
 from django.contrib.auth.hashers import make_password
 from django.utils import timezone 
-
-
+from django.conf import settings
 from django.contrib.auth.hashers import check_password
 from rest_framework_simplejwt.tokens import RefreshToken
+
+
 
 
 
@@ -61,24 +62,29 @@ class LoginSerializer(serializers.Serializer):
         user_name = data.get("user_name")
         password = data.get("password")
 
+        # Secret key is internal – not provided by user
+        expected_secret_key = settings.SECRET_KEY
+
+        if expected_secret_key != "IMOINVESTOR2025":
+            raise serializers.ValidationError("Internal secret key validation failed.")
+
         try:
             user = DUser.objects.get(user_name=user_name)
         except DUser.DoesNotExist:
             raise serializers.ValidationError("Invalid username or password")
 
-        # Verifica a senha
         if not check_password(password, user.password_hash):
             raise serializers.ValidationError("Invalid username or password")
         
         user.last_login = timezone.now()
         user.save()
 
-        # Gera tokens JWT
         refresh = RefreshToken.for_user(user)
-
 
         institution_ids = list(user.institution.values_list('id', flat=True))
         roles = Role.objects.filter(userrole__user=user).values_list('role', flat=True)
+
+        print(f"Signing Secret Key: {settings.SECRET_KEY}")
 
 
         return {
@@ -91,7 +97,8 @@ class LoginSerializer(serializers.Serializer):
             "access_token": str(refresh.access_token),
             "refresh_token": str(refresh),
         }
-    
+
+
 
 
 class UpdateUserSerializer(serializers.ModelSerializer):

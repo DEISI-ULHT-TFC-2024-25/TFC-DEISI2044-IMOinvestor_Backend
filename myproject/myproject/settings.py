@@ -150,6 +150,9 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+from decouple import config
+
+SECRET_KEY = config('APP_SECRET_KEY')
 
 
 # Internationalization

@@ -6,7 +6,7 @@ __pycache__/
 # Virtual environments
 venv/
 env/
-
+.env/
 # Logs and database files
 *.log
 *.sqlite3
