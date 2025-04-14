@@ -84,6 +84,11 @@ class LoginSerializer(serializers.Serializer):
         institution_ids = list(user.institution.values_list('id', flat=True))
         roles = Role.objects.filter(userrole__user=user).values_list('role', flat=True)
 
+        
+        refresh.payload['roles'] = list(roles)
+        refresh.payload['organization_ids'] = institution_ids
+
+
         print(f"Signing Secret Key: {settings.SECRET_KEY}")
 
 
