@@ -43,7 +43,7 @@ class DUserSerializer(serializers.ModelSerializer):
             UserOrganization.objects.create(user=user, organization=organization, created_by=user.user_name, created_date=user.created_date)
 
         try:
-            default_role = Role.objects.get(role="USER")
+            default_role = Role.objects.get(role="INVESTOR")
             UserRole.objects.create(user=user, role=default_role, created_by=user.user_name, created_date=now())
         except Role.DoesNotExist:
             raise serializers.ValidationError("Default role 'USER' does not exist.")
