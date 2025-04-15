@@ -13,44 +13,43 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 
 
-
+from .dtos import CreateUserDTO
 
 class DUserSerializer(serializers.ModelSerializer):
     institution_ids = serializers.ListField(child=serializers.IntegerField(), write_only=True)
+    password = serializers.CharField(write_only=True, max_length=255)  # Replace password_hash
 
     class Meta:
         model = DUser
         fields = [
-            'id', 'user_name', 'password_hash', 'first_name', 'last_name', 'email', 
+            'id', 'user_name', 'password', 'first_name', 'last_name', 'email', 
             'date_of_birth', 'lang_key', 'activated', 'last_login', 
             'created_by', 'created_date', 'last_modified_by', 'last_modified_date', 
             'institution_ids'
         ]
+        read_only_fields = ['created_date', 'last_login', 'created_by']
 
     def create(self, validated_data):
         institution_ids = validated_data.pop('institution_ids', [])
-        
-        # Hash password before storing it
-        validated_data['password_hash'] = make_password(validated_data['password_hash'])
-        
-        # Set timestamps
+        password = validated_data.pop('password')
+
+        validated_data['password_hash'] = make_password(password)
         validated_data['created_date'] = now()
-        
+
         user = DUser.objects.create(**validated_data)
 
-        # Assign user to organizations
         for org_id in institution_ids:
             organization = Organization.objects.get(id=org_id)
             UserOrganization.objects.create(user=user, organization=organization, created_by=user.user_name, created_date=user.created_date)
 
-        # Assign default "USER" role
         try:
-            default_role = Role.objects.get(role="USER")  # Fetch the role with name "USER"
+            default_role = Role.objects.get(role="USER")
             UserRole.objects.create(user=user, role=default_role, created_by=user.user_name, created_date=now())
         except Role.DoesNotExist:
-            raise serializers.ValidationError("Default role 'USER' does not exist in the database.")
+            raise serializers.ValidationError("Default role 'USER' does not exist.")
 
         return user
+
 
 
 

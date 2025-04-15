@@ -16,18 +16,31 @@ from rest_framework.authtoken.models import Token
 from .serializers import UpdateUserSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
+from .dtos import CreateUserDTO
 
 
 
-class CreateUserView(generics.CreateAPIView):
-    queryset = DUser.objects.all()
-    serializer_class = DUserSerializer
+class CreateUserView(APIView):
+
+    @swagger_auto_schema(request_body=CreateUserDTO, responses={201: DUserSerializer})
+    def post(self, request):
+
+        dto = CreateUserDTO(data=request.data)
+        if not dto.is_valid():
+            return Response(dto.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = DUserSerializer(data=dto.validated_data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response(DUserSerializer(user).data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoginView(APIView):
 
     @swagger_auto_schema(request_body=LoginSerializer)
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):   
         # Serialize the incoming data
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
