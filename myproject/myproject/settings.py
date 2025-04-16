@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'announcements',
     'property_roi',
     'property_media',
+    'phonenumber_field',
 
    
 ]

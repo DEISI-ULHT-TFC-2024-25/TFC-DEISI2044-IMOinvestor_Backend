@@ -1,5 +1,7 @@
 from django.db import models
 from organization.models import Organization
+from phonenumber_field.modelfields import PhoneNumberField
+
 
 class DUser(models.Model):
     """""
@@ -22,6 +24,7 @@ class DUser(models.Model):
     first_name = models.CharField(max_length=255, null=True, blank=True)
     last_name = models.CharField(max_length=255, null=True, blank=True)
     email = models.EmailField(unique=True, null=True, blank=True)
+    phone_number = PhoneNumberField(null=True, blank=True, region='PT')  # region opcional
     date_of_birth = models.DateField(null=True, blank=True)
     lang_key = models.CharField(max_length=10, choices=LANG_KEY_CHOICES)
     activated = models.BooleanField()

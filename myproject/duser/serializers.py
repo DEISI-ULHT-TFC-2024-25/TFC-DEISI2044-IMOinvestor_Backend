@@ -25,7 +25,7 @@ class DUserSerializer(serializers.ModelSerializer):
             'id', 'user_name', 'password', 'first_name', 'last_name', 'email', 
             'date_of_birth', 'lang_key', 'activated', 'last_login', 
             'created_by', 'created_date', 'last_modified_by', 'last_modified_date', 
-            'institution_ids'
+            'institution_ids', 'phone_number'
         ]
         read_only_fields = ['created_date', 'last_login', 'created_by']
 
@@ -49,6 +49,11 @@ class DUserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Default role 'USER' does not exist.")
 
         return user
+    
+    def validate_phone_number(self, value):
+        if value and not value.is_valid():
+            raise serializers.ValidationError("Número de telefone inválido.")
+        return value
 
 
 
@@ -108,9 +113,11 @@ class LoginSerializer(serializers.Serializer):
 class UpdateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = DUser
-        fields = ['first_name', 'last_name', 'email', 'date_of_birth',  'lang_key']
+        fields = ['first_name', 'last_name', 'email', 'date_of_birth',  'lang_key', 'phone_number']
 
     def update(self, instance, validated_data):
         # Use Django's default method to update the instance with validated data
         return super().update(instance, validated_data)
+    
+
 
