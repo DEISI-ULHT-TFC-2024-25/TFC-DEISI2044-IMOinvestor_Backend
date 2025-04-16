@@ -113,7 +113,9 @@ class LoginSerializer(serializers.Serializer):
 
         refresh = RefreshToken.for_user(user)
 
-        institution_ids = list(user.institution.values_list('id', flat=True))
+
+        institution_ids = list(UserOrganization.objects.filter(user=user).values_list('organization_id', flat=True))
+
         roles = Role.objects.filter(userrole__user=user).values_list('role', flat=True)
 
         
@@ -141,9 +143,9 @@ class LoginSerializer(serializers.Serializer):
 class UpdateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = DUser
-        fields = ['first_name', 'last_name', 'email', 'date_of_birth',  'lang_key']
+        fields = ['first_name', 'last_name', 'email', 'date_of_birth', 'lang_key']
 
     def update(self, instance, validated_data):
-        # Use Django's default method to update the instance with validated data
         return super().update(instance, validated_data)
+
 
