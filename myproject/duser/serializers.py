@@ -22,10 +22,10 @@ class DUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = DUser
         fields = [
-            'id', 'user_name', 'password', 'first_name', 'last_name', 'email', 
+            'id', 'user_name', 'password', 'first_name', 'last_name', 'email',  'phone_number',
             'date_of_birth', 'lang_key', 'activated', 'last_login', 
             'created_by', 'created_date', 'last_modified_by', 'last_modified_date', 
-            'institution_ids', 'phone_number'
+            'institution_ids',
         ]
         read_only_fields = ['created_date', 'last_login', 'created_by']
 
@@ -50,10 +50,7 @@ class DUserSerializer(serializers.ModelSerializer):
 
         return user
     
-    def validate_phone_number(self, value):
-        if value and not value.is_valid():
-            raise serializers.ValidationError("Número de telefone inválido.")
-        return value
+
 
 
 

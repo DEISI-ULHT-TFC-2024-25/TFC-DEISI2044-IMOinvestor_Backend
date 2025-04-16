@@ -29,7 +29,11 @@ class CreateUserView(APIView):
         if not dto.is_valid():
             return Response(dto.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = DUserSerializer(data=dto.validated_data)
+        # Convert phone_number to string explicitly
+        data = dict(dto.validated_data)
+        data['phone_number'] = str(data['phone_number'])
+        serializer = DUserSerializer(data=data) 
+
         if serializer.is_valid():
             user = serializer.save()
             return Response(DUserSerializer(user).data, status=status.HTTP_201_CREATED)

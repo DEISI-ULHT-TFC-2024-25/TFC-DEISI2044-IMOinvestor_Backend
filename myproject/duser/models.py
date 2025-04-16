@@ -4,14 +4,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 
 class DUser(models.Model):
-    """""
-    GENDER_CHOICES = [
-        ('MALE', 'Male'),
-        ('FEMALE', 'Female'),
-        ('OTHER', 'Other'),
-        ('DONT_WANT_TO_SAY', 'Don\'t want to say')
-    ]
-    """
+
     LANG_KEY_CHOICES = [
         ('PT', 'Portuguese'),
         ('ENG', 'English')
@@ -24,7 +17,7 @@ class DUser(models.Model):
     first_name = models.CharField(max_length=255, null=True, blank=True)
     last_name = models.CharField(max_length=255, null=True, blank=True)
     email = models.EmailField(unique=True, null=True, blank=True)
-    phone_number = PhoneNumberField(null=True, blank=True, region='PT')  # region opcional
+    phone_number = PhoneNumberField(null=False, blank=False, region='PT')
     date_of_birth = models.DateField(null=True, blank=True)
     lang_key = models.CharField(max_length=10, choices=LANG_KEY_CHOICES)
     activated = models.BooleanField()
