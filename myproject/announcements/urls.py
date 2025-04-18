@@ -1,14 +1,10 @@
-from django.urls import path,include
-from .views import AnnouncementCreateView,AnnouncementViewSet
+from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-
+from .views import AnnouncementViewSet
 
 router = DefaultRouter()
-router.register(r'filter', AnnouncementViewSet, basename='announcement')
-
+router.register(r'announcements', AnnouncementViewSet, basename='announcement')
 
 urlpatterns = [
-    path("create/", AnnouncementCreateView.as_view(), name="create"),
-    path("", include(router.urls)),  # Includes the announcement listing with filtering
-
+    path('', include(router.urls)),
 ]
