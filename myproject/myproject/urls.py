@@ -27,6 +27,7 @@ urlpatterns = [
     path('api/organization/', include('organization.urls')),  # Inclui as rotas da organização
     path('api/user/', include('duser.urls')),  # Inclui as rotas do investidor
     path('api/announcement/', include('announcements.urls')),
+    path('api/district/', include('district.urls')),
     path('api/property/', include('property.urls')),
     path('api/property-media/', include ('property_media.urls')),
     path('api/property-roi/', include('property_roi.urls')),
