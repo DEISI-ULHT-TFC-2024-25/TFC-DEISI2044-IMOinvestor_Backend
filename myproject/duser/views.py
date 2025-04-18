@@ -65,23 +65,26 @@ class LoginView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 '''
+
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
 class UpdateUserView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     @swagger_auto_schema(request_body=UpdateUserSerializer)
-
     def put(self, request):
-        user_id = request.data.get("user_id")
-        if not user_id:
-            return Response({"detail": "User ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+        # A partir do token JWT, o usuário está disponível como `request.user`
+        user_instance = request.user  # ← Aqui, o usuário é recuperado diretamente do token JWT
 
-        try:
-            user_instance = DUser.objects.get(id=user_id)
-        except DUser.DoesNotExist:
-            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+        if not user_instance:
+            return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
+        # Agora o serializer vai ser usado para atualizar o usuário logado
         serializer = UpdateUserSerializer(user_instance, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-        
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

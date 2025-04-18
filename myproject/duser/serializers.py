@@ -12,44 +12,77 @@ from django.contrib.auth.hashers import check_password
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
-
-from .dtos import CreateUserDTO
-
 class DUserSerializer(serializers.ModelSerializer):
-    institution_ids = serializers.ListField(child=serializers.IntegerField(), write_only=True)
-    password = serializers.CharField(write_only=True, max_length=255)  # Replace password_hash
+    institution_ids = serializers.ListField(
+        child=serializers.IntegerField(),
+        write_only=True,
+        required=False,
+        allow_empty=True
+    )
+    role_id = serializers.IntegerField(write_only=True)
+    password = serializers.CharField(write_only=True, max_length=255)
 
     class Meta:
         model = DUser
         fields = [
-            'id', 'user_name', 'password', 'first_name', 'last_name', 'email',  'phone_number',
+            'id', 'user_name', 'password', 'first_name', 'last_name', 'email', 'phone',
             'date_of_birth', 'lang_key', 'activated', 'last_login', 
             'created_by', 'created_date', 'last_modified_by', 'last_modified_date', 
-            'institution_ids',
+            'institution_ids'
         ]
         read_only_fields = ['created_date', 'last_login', 'created_by']
+
+    def validate(self, data):
+        role_id = data.get('role_id')
+        try:
+            role = Role.objects.get(id=role_id)
+        except Role.DoesNotExist:
+            raise serializers.ValidationError({"role_id": "O papel fornecido não existe."})
+
+        if role.role != "INVESTOR" and not data.get('institution_ids'):
+            raise serializers.ValidationError({
+                "institution_ids": "Este campo é obrigatório para papéis diferentes de INVESTOR."
+            })
+
+        data['role'] = role
+        return data
 
     def create(self, validated_data):
         institution_ids = validated_data.pop('institution_ids', [])
         password = validated_data.pop('password')
+        role = validated_data.pop('role')
+        validated_data.pop('role_id', None)  # <- aqui está a correção
+
 
         validated_data['password_hash'] = make_password(password)
         validated_data['created_date'] = now()
 
         user = DUser.objects.create(**validated_data)
 
-        for org_id in institution_ids:
-            organization = Organization.objects.get(id=org_id)
-            UserOrganization.objects.create(user=user, organization=organization, created_by=user.user_name, created_date=user.created_date)
+        # Associar papel fornecido
+        UserRole.objects.create(
+            user=user,
+            role=role,
+            created_by=user.user_name,
+            created_date=now()
+        )
 
-        try:
-            default_role = Role.objects.get(role="INVESTOR")
-            UserRole.objects.create(user=user, role=default_role, created_by=user.user_name, created_date=now())
-        except Role.DoesNotExist:
-            raise serializers.ValidationError("Default role 'USER' does not exist.")
+        if role.role != "INVESTOR":
+            for org_id in institution_ids:
+                try:
+                    organization = Organization.objects.get(id=org_id)
+                    UserOrganization.objects.create(
+                        user=user,
+                        organization=organization,
+                        created_by=user.user_name,
+                        created_date=user.created_date
+                    )
+                except Organization.DoesNotExist:
+                    raise serializers.ValidationError(f"Organização com ID {org_id} não existe.")
 
         return user
     
+
 
 
 
@@ -82,7 +115,9 @@ class LoginSerializer(serializers.Serializer):
 
         refresh = RefreshToken.for_user(user)
 
-        institution_ids = list(user.institution.values_list('id', flat=True))
+
+        institution_ids = list(UserOrganization.objects.filter(user=user).values_list('organization_id', flat=True))
+
         roles = Role.objects.filter(userrole__user=user).values_list('role', flat=True)
 
         
@@ -110,11 +145,11 @@ class LoginSerializer(serializers.Serializer):
 class UpdateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = DUser
-        fields = ['first_name', 'last_name', 'email', 'date_of_birth',  'lang_key', 'phone_number']
+        fields = ['first_name', 'last_name', 'email', 'date_of_birth',  'lang_key']
 
     def update(self, instance, validated_data):
-        # Use Django's default method to update the instance with validated data
         return super().update(instance, validated_data)
     
+
 
 
