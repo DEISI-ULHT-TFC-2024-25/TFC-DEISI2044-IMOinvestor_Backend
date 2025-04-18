@@ -28,7 +28,7 @@ class DUserSerializer(serializers.ModelSerializer):
             'id', 'user_name', 'password', 'first_name', 'last_name', 'email', 'phone',
             'date_of_birth', 'lang_key', 'activated', 'last_login', 
             'created_by', 'created_date', 'last_modified_by', 'last_modified_date', 
-            'institution_ids'
+            'institution_ids', 'role_id'
         ]
         read_only_fields = ['created_date', 'last_login', 'created_by']
 

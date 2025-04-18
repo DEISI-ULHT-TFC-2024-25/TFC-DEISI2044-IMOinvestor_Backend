@@ -20,6 +20,7 @@ from .dtos import CreateUserDTO
 
 
 
+
 class CreateUserView(APIView):
 
     @swagger_auto_schema(request_body=CreateUserDTO, responses={201: DUserSerializer})
@@ -31,7 +32,7 @@ class CreateUserView(APIView):
 
         # Convert phone_number to string explicitly
         data = dict(dto.validated_data)
-        data['phone_number'] = str(data['phone_number'])
+        
         serializer = DUserSerializer(data=data) 
 
         if serializer.is_valid():
@@ -88,3 +89,23 @@ class UpdateUserView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+class UserListView(generics.ListAPIView):
+    queryset = DUser.objects.all()
+    serializer_class = DUserSerializer
+    permission_classes = [IsAuthenticated]
+
+class UserDetailView(generics.RetrieveAPIView):
+    queryset = DUser.objects.all()
+    serializer_class = DUserSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = "id"
+
+class UserDeleteView(generics.DestroyAPIView):
+    queryset = DUser.objects.all()
+    serializer_class = DUserSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = "id"
