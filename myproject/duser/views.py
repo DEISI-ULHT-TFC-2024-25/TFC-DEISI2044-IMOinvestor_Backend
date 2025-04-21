@@ -96,12 +96,11 @@ class UpdateUserView(APIView):
 class UserListView(generics.ListAPIView):
     queryset = DUser.objects.all()
     serializer_class = DUserSerializer
-    permission_classes = [IsAuthenticated]
+    
 
 class UserDetailView(generics.RetrieveAPIView):
     queryset = DUser.objects.all()
     serializer_class = DUserSerializer
-    permission_classes = [IsAuthenticated]
     lookup_field = "id"
 
 class UserDeleteView(generics.DestroyAPIView):
