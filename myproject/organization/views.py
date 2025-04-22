@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Organization
 from .serializers import OrganizationSerializer
+from rest_framework.permissions import IsAuthenticated
 
 class OrganizationCreateView(generics.CreateAPIView):
     queryset = Organization.objects.all()
@@ -16,4 +17,22 @@ class OrganizationCreateView(generics.CreateAPIView):
 class OrganizationListView(generics.ListAPIView):
     queryset = Organization.objects.all()
     serializer_class = OrganizationSerializer
-    permission_classes = []  # Acesso público
+    permission_classes = []  
+
+class OrganizationDetailView(generics.RetrieveAPIView):
+    queryset = Organization.objects.all()
+    serializer_class = OrganizationSerializer
+    lookup_field = 'id'
+
+
+class OrganizationDeleteView(generics.DestroyAPIView):
+    queryset = Organization.objects.all()
+    serializer_class = OrganizationSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'
+
+class OrganizationUpdateView(generics.UpdateAPIView):
+    queryset = Organization.objects.all()
+    serializer_class = OrganizationSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'
