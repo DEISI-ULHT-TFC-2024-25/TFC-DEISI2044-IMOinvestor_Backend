@@ -32,6 +32,7 @@ urlpatterns = [
     path('api/property-media/', include ('property_media.urls')),
     path('api/property-roi/', include('property_roi.urls')),
     path('api/roles/', include('roles.urls')),  # 👈 Add this line
+    path('api/municipality/', include('municipality.urls')),
 
 
 ]
