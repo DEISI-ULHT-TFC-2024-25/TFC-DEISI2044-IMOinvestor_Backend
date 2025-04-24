@@ -10,6 +10,9 @@ env/
 # Logs and database files
 *.log
 *.sqlite3
+*.sql
+*.er 
+
 
 # Ignore environment variables
 .env
