@@ -87,7 +87,6 @@ class DUserSerializer(serializers.ModelSerializer):
 
 
 
-
 class LoginSerializer(serializers.Serializer):
     user_name = serializers.CharField()
     password = serializers.CharField(write_only=True)
@@ -96,9 +95,7 @@ class LoginSerializer(serializers.Serializer):
         user_name = data.get("user_name")
         password = data.get("password")
 
-        # Secret key is internal – not provided by user
         expected_secret_key = settings.SECRET_KEY
-
         if expected_secret_key != "IMOINVESTOR2025":
             raise serializers.ValidationError("Internal secret key validation failed.")
 
@@ -109,36 +106,43 @@ class LoginSerializer(serializers.Serializer):
 
         if not check_password(password, user.password_hash):
             raise serializers.ValidationError("Invalid username or password")
-        
+
         user.last_login = timezone.now()
         user.save()
 
         refresh = RefreshToken.for_user(user)
 
-
         institution_ids = list(UserOrganization.objects.filter(user=user).values_list('organization_id', flat=True))
+        roles = list(Role.objects.filter(userrole__user=user).values_list('role', flat=True))
 
-        roles = Role.objects.filter(userrole__user=user).values_list('role', flat=True)
-
-        
-        refresh.payload['roles'] = list(roles)
-        refresh.payload['organization_ids'] = institution_ids
-
-
-        print(f"Signing Secret Key: {settings.SECRET_KEY}")
-
+        # Add custom user fields to token payload
+        refresh['user_id'] = user.id
+        refresh['user_name'] = user.user_name
+        refresh['first_name'] = user.first_name
+        refresh['last_name'] = user.last_name
+        refresh['email'] = user.email
+        refresh['phone'] = user.phone
+        refresh['date_of_birth'] = user.date_of_birth.isoformat() if user.date_of_birth else None
+        refresh['lang_key'] = user.lang_key
+        refresh['activated'] = user.activated
+        refresh['roles'] = roles
+        refresh['organization_ids'] = institution_ids
 
         return {
             "user_id": user.id,
+            "user_name": user.user_name,
             "first_name": user.first_name,
             "last_name": user.last_name,
+            "email": user.email,
+            "phone": user.phone,
+            "date_of_birth": user.date_of_birth,
+            "lang_key": user.lang_key,
+            "activated": user.activated,
             "organization_ids": institution_ids,
             "role": roles,
-            "user_name": user.user_name,
             "access_token": str(refresh.access_token),
             "refresh_token": str(refresh),
         }
-
 
 
 
