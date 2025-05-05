@@ -137,8 +137,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'tfc_db',
         'USER': 'postgres',  
-        'PASSWORD': 'akash',  
-        #'PASSWORD': 'biro',  
+        #'PASSWORD': 'akash',  
+        'PASSWORD': 'biro',  
         'HOST': 'localhost',
         'PORT': '5432',
     }

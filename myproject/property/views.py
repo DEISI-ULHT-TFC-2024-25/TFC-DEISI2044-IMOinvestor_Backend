@@ -48,3 +48,11 @@ class PropertyUpdateView(generics.UpdateAPIView):
     serializer_class = PropertySerializer
     permission_classes = [IsAuthenticated]
     lookup_field = 'id'
+
+class PropertyByOrganizationView(generics.ListAPIView):
+    serializer_class = PropertySerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        organization_id = self.kwargs.get('organization_id')
+        return Property.objects.filter(organization_id=organization_id)
