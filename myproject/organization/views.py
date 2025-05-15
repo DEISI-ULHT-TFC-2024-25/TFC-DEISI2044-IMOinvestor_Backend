@@ -4,6 +4,9 @@ from rest_framework import status
 from .models import Organization
 from .serializers import OrganizationSerializer
 from rest_framework.permissions import IsAuthenticated
+from .permissions import IsTokenOrganization
+from django.conf import settings
+import jwt
 
 
 
@@ -62,7 +65,32 @@ class OrganizationDeleteView(generics.DestroyAPIView):
 
 
 class OrganizationUpdateView(generics.UpdateAPIView):
-    queryset = Organization.objects.all()
     serializer_class = OrganizationSerializer
-    permission_classes = [IsAuthenticated, IsTokenOrganization]
-    lookup_field = 'id'
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        # Extract token from the header
+        auth_header = self.request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            raise PermissionDenied("Authorization header is missing or invalid.")
+
+        token = auth_header.split(' ')[1]
+
+        try:
+            decoded = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        except jwt.ExpiredSignatureError:
+            raise PermissionDenied("Token has expired.")
+        except jwt.InvalidTokenError:
+            raise PermissionDenied("Invalid token.")
+
+        organization_ids = decoded.get("organization_ids")
+        if not organization_ids:
+            raise PermissionDenied("No organization ID found in token.")
+
+        # You can adjust this if your logic allows multiple orgs
+        org_id = organization_ids[0]
+
+        try:
+            return Organization.objects.get(id=org_id)
+        except Organization.DoesNotExist:
+            raise PermissionDenied("Organization not found or access denied.")

@@ -27,7 +27,6 @@ class CreateUserView(APIView):
 
 
     @swagger_auto_schema(request_body=DUserSerializer)
-
     def post(self, request):
 
         dto = CreateUserDTO(data=request.data)

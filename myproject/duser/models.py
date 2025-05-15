@@ -22,7 +22,7 @@ class DUser(models.Model):
     lang_key = models.CharField(max_length=10, choices=LANG_KEY_CHOICES)
     activated = models.BooleanField()
     last_login = models.DateTimeField(null=True, blank=True)
-    created_by = models.CharField(max_length=255)
+    created_by = models.CharField(max_length=255,default="system")
     created_date = models.DateTimeField()
     last_modified_by = models.CharField(max_length=255, null=True, blank=True)
     last_modified_date = models.DateTimeField(null=True, blank=True)
