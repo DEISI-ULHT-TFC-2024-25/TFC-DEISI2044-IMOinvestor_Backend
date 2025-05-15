@@ -54,7 +54,7 @@ class DUserSerializer(serializers.ModelSerializer):
         validated_data.pop('role_id', None)  # <- aqui está a correção
 
 
-        validated_data['password_hash'] = make_password(password)
+        validated_data['password'] = make_password(password)
         validated_data['created_date'] = now()
 
         user = DUser.objects.create(**validated_data)
@@ -104,7 +104,7 @@ class LoginSerializer(serializers.Serializer):
         except DUser.DoesNotExist:
             raise serializers.ValidationError("Invalid username or password")
 
-        if not check_password(password, user.password_hash):
+        if not check_password(password, user.password):
             raise serializers.ValidationError("Invalid username or password")
 
         user.last_login = timezone.now()

@@ -40,13 +40,13 @@ class PropertyDetailView(generics.RetrieveAPIView):
 class PropertyDeleteView(generics.DestroyAPIView):
     queryset = Property.objects.all()
     serializer_class = PropertySerializer
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
     lookup_field = 'id'
 
 class PropertyUpdateView(generics.UpdateAPIView):
     queryset = Property.objects.all()
     serializer_class = PropertySerializer
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
     lookup_field = 'id'
 
 class PropertyByOrganizationView(generics.ListAPIView):

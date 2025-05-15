@@ -20,3 +20,18 @@ class MunicipalitiesByDistrictView(APIView):
         municipalities = Municipality.objects.filter(district_id=district_id)
         response_serializer = MunicipalitySerializer(municipalities, many=True)
         return Response(response_serializer.data, status=status.HTTP_200_OK)
+    
+
+
+
+class AllMunicipalitiesView(APIView):
+    
+    @swagger_auto_schema(
+        operation_description="Get all municipalities",
+        responses={200: MunicipalitySerializer(many=True)}
+    )
+    def get(self, request):
+        municipalities = Municipality.objects.all()
+        serializer = MunicipalitySerializer(municipalities, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+

@@ -5,6 +5,35 @@ from .models import Organization
 from .serializers import OrganizationSerializer
 from rest_framework.permissions import IsAuthenticated
 
+
+
+from rest_framework.permissions import BasePermission
+from rest_framework.exceptions import PermissionDenied
+
+class IsTokenOrganization(BasePermission):
+    """
+    Allows access only if the organization ID in the token matches the target org ID in the URL.
+    """
+
+    def has_permission(self, request, view):
+        # Safe method check is optional, based on your needs
+        return True  # We handle the check in `has_object_permission`
+
+    def has_object_permission(self, request, view, obj):
+        # Extract org ID from token (assumes it's in the token payload)
+        token_org_id = request.auth.get('organization_id')
+
+        if token_org_id is None:
+            raise PermissionDenied("Token missing organization_id")
+
+        if str(obj.id) != str(token_org_id):
+            raise PermissionDenied("You can only update/delete your own organization")
+
+        return True
+
+
+
+
 class OrganizationCreateView(generics.CreateAPIView):
     queryset = Organization.objects.all()
     serializer_class = OrganizationSerializer
@@ -28,11 +57,12 @@ class OrganizationDetailView(generics.RetrieveAPIView):
 class OrganizationDeleteView(generics.DestroyAPIView):
     queryset = Organization.objects.all()
     serializer_class = OrganizationSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsTokenOrganization]
     lookup_field = 'id'
+
 
 class OrganizationUpdateView(generics.UpdateAPIView):
     queryset = Organization.objects.all()
     serializer_class = OrganizationSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsTokenOrganization]
     lookup_field = 'id'

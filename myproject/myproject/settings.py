@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'django_filters',
     
     'drf_yasg',
+
     'district',
     'municipality',
     'organization',
@@ -72,6 +73,9 @@ INSTALLED_APPS = [
     'announcements',
     'property_roi',
     'property_media',
+    
+
+
     'phonenumber_field',
 
    
@@ -137,8 +141,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'tfc_db',
         'USER': 'postgres',  
-        #'PASSWORD': 'akash',  
-        'PASSWORD': 'biro',  
+        'PASSWORD': 'akash',  
+        #'PASSWORD': 'biro',  
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -147,6 +151,7 @@ DATABASES = {
 
 
 
+AUTH_USER_MODEL = 'duser.DUser'
 
 
 

@@ -36,7 +36,7 @@ class Property(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name="properties")
     district = models.ForeignKey(District, on_delete=models.CASCADE)
     municipality = models.ForeignKey(Municipality, on_delete=models.CASCADE)
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255, unique=False)
     street = models.CharField(max_length=510, blank=True, null=True)
     postal_code = models.CharField(max_length=10)
     property_type = models.CharField(max_length=255, choices=TIPO_CHOICE)

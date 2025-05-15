@@ -17,13 +17,17 @@ from .serializers import UpdateUserSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 from .dtos import CreateUserDTO
+from django.conf import settings
+import jwt
 
 
 
 
 class CreateUserView(APIView):
 
-    @swagger_auto_schema(request_body=CreateUserDTO, responses={201: DUserSerializer})
+
+    @swagger_auto_schema(request_body=DUserSerializer)
+
     def post(self, request):
 
         dto = CreateUserDTO(data=request.data)
@@ -71,26 +75,40 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class UpdateUserView(APIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
-
     @swagger_auto_schema(request_body=UpdateUserSerializer)
     def put(self, request):
-        # A partir do token JWT, o usuário está disponível como `request.user`
-        user_instance = request.user  # ← Aqui, o usuário é recuperado diretamente do token JWT
+        # Get token from Authorization header
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return Response({"detail": "Authorization header missing or invalid"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        if not user_instance:
-            return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        token = auth_header.split(' ')[1]
 
-        # Agora o serializer vai ser usado para atualizar o usuário logado
-        serializer = UpdateUserSerializer(user_instance, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        try:
+            # Decode the token manually
+            decoded = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+            user_id = decoded.get('user_id')
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            if not user_id:
+                return Response({"detail": "User ID not found in token"}, status=status.HTTP_400_BAD_REQUEST)
 
+            try:
+                user_instance = DUser.objects.get(id=user_id)
+            except DUser.DoesNotExist:
+                return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
+            # Now update the user with the incoming data
+            serializer = UpdateUserSerializer(user_instance, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except jwt.ExpiredSignatureError:
+            return Response({"detail": "Token has expired"}, status=status.HTTP_401_UNAUTHORIZED)
+        except jwt.InvalidTokenError:
+            return Response({"detail": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class UserListView(generics.ListAPIView):
