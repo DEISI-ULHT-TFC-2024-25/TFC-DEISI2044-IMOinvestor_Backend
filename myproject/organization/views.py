@@ -1,96 +1,63 @@
-from rest_framework import generics
+from rest_framework import viewsets, status
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import PermissionDenied
+from drf_yasg.utils import swagger_auto_schema
 from .models import Organization
 from .serializers import OrganizationSerializer
-from rest_framework.permissions import IsAuthenticated
 from .permissions import IsTokenOrganization
 from django.conf import settings
 import jwt
 
 
-
-from rest_framework.permissions import BasePermission
-from rest_framework.exceptions import PermissionDenied
-
-class IsTokenOrganization(BasePermission):
-    """
-    Allows access only if the organization ID in the token matches the target org ID in the URL.
-    """
-
-    def has_permission(self, request, view):
-        # Safe method check is optional, based on your needs
-        return True  # We handle the check in `has_object_permission`
-
-    def has_object_permission(self, request, view, obj):
-        # Extract org ID from token (assumes it's in the token payload)
-        token_org_id = request.auth.get('organization_id')
-
-        if token_org_id is None:
-            raise PermissionDenied("Token missing organization_id")
-
-        if str(obj.id) != str(token_org_id):
-            raise PermissionDenied("You can only update/delete your own organization")
-
-        return True
-
-
-
-
-class OrganizationCreateView(generics.CreateAPIView):
+class OrganizationViewSet(viewsets.ModelViewSet):
     queryset = Organization.objects.all()
     serializer_class = OrganizationSerializer
 
-    def create(self, request, *args, **kwargs):
-        request.data["created_date"] = request.data.get("created_date", None)
-        request.data["last_modified_date"] = request.data.get("last_modified_date", None)
-        return super().create(request, *args, **kwargs)
-
-class OrganizationListView(generics.ListAPIView):
-    queryset = Organization.objects.all()
-    serializer_class = OrganizationSerializer
-    permission_classes = []  
-
-class OrganizationDetailView(generics.RetrieveAPIView):
-    queryset = Organization.objects.all()
-    serializer_class = OrganizationSerializer
-    lookup_field = 'id'
-
-
-class OrganizationDeleteView(generics.DestroyAPIView):
-    queryset = Organization.objects.all()
-    serializer_class = OrganizationSerializer
-    permission_classes = [IsAuthenticated, IsTokenOrganization]
-    lookup_field = 'id'
-
-
-class OrganizationUpdateView(generics.UpdateAPIView):
-    serializer_class = OrganizationSerializer
-    permission_classes = [IsAuthenticated]
+    def get_permissions(self):
+        if self.action in ['update', 'partial_update', 'destroy']:
+            return [IsAuthenticated(), IsTokenOrganization()]
+        return []
 
     def get_object(self):
-        # Extract token from the header
-        auth_header = self.request.headers.get('Authorization')
-        if not auth_header or not auth_header.startswith('Bearer '):
-            raise PermissionDenied("Authorization header is missing or invalid.")
+        # Para update, validando organização a partir do token
+        obj = super().get_object()
+        if self.action in ['update', 'partial_update', 'destroy']:
+            auth_header = self.request.headers.get('Authorization')
+            if not auth_header or not auth_header.startswith('Bearer '):
+                raise PermissionDenied("Authorization header is missing or invalid.")
 
-        token = auth_header.split(' ')[1]
+            token = auth_header.split(' ')[1]
 
-        try:
-            decoded = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-        except jwt.ExpiredSignatureError:
-            raise PermissionDenied("Token has expired.")
-        except jwt.InvalidTokenError:
-            raise PermissionDenied("Invalid token.")
+            try:
+                decoded = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+            except jwt.ExpiredSignatureError:
+                raise PermissionDenied("Token has expired.")
+            except jwt.InvalidTokenError:
+                raise PermissionDenied("Invalid token.")
 
-        organization_ids = decoded.get("organization_ids")
-        if not organization_ids:
-            raise PermissionDenied("No organization ID found in token.")
+            organization_ids = decoded.get("organization_ids")
+            if not organization_ids or str(obj.id) not in map(str, organization_ids):
+                raise PermissionDenied("You can only modify your own organization.")
 
-        # You can adjust this if your logic allows multiple orgs
-        org_id = organization_ids[0]
+        return obj
 
-        try:
-            return Organization.objects.get(id=org_id)
-        except Organization.DoesNotExist:
-            raise PermissionDenied("Organization not found or access denied.")
+    @swagger_auto_schema(operation_summary="Listar organizações")
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @swagger_auto_schema(operation_summary="Criar organização")
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @swagger_auto_schema(operation_summary="Detalhar organização")
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @swagger_auto_schema(operation_summary="Atualizar organização")
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @swagger_auto_schema(operation_summary="Excluir organização")
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)

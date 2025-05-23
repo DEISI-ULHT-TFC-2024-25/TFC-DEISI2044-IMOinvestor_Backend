@@ -13,7 +13,8 @@ class PropertyCreateView(APIView):
     serializer_class = PropertySerializer
 
 
-    @swagger_auto_schema(request_body=PropertySerializer)
+    @swagger_auto_schema(request_body=PropertySerializer,
+                         operation_summary="Criar uma nova propriedade",)
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)

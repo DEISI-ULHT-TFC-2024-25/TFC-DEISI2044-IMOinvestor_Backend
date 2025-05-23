@@ -5,6 +5,7 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
+
 schema_view = get_schema_view(
     openapi.Info(
         title="Minha API",
@@ -31,8 +32,6 @@ urlpatterns = [
     path('api/property/', include('property.urls')),
     path('api/property-media/', include ('property_media.urls')),
     path('api/property-roi/', include('property_roi.urls')),
-    path('api/roles/', include('roles.urls')),  # 👈 Add this line
+    path('api/roles/', include('roles.urls')),
     path('api/municipality/', include('municipality.urls')),
-
-
 ]

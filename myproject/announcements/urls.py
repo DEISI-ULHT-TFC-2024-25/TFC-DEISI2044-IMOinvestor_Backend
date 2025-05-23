@@ -5,6 +5,4 @@ from .views import AnnouncementViewSet
 router = DefaultRouter()
 router.register(r'', AnnouncementViewSet, basename='announcement')
 
-urlpatterns = [
-    path('', include(router.urls)),
-]
+urlpatterns = router.urls
