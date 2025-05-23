@@ -1,6 +1,10 @@
-from django.urls import path
-from .views import PropertyMediaCreateView
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import PropertyMediaViewSet
+
+router = DefaultRouter()
+router.register(r'', PropertyMediaViewSet, basename='property-media')
 
 urlpatterns = [
-    path('create/', PropertyMediaCreateView.as_view(), name='create-property-media'),
+    path('', include(router.urls)),
 ]
