@@ -1,6 +1,10 @@
-from django.urls import path
-from .views import ROICalculationCreateView
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import ROICalculationViewSet
+
+router = DefaultRouter()
+router.register(r'', ROICalculationViewSet, basename='roi-calculation')
 
 urlpatterns = [
-    path("calculate/", ROICalculationCreateView.as_view(), name="calculate-roi"),
+    path('', include(router.urls)),
 ]

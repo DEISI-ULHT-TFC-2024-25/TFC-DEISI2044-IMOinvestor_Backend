@@ -1,7 +1,10 @@
-from django.urls import path
-from .views import MunicipalitiesByDistrictView,AllMunicipalitiesView
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import MunicipalityViewSet
+
+router = DefaultRouter()
+router.register(r'', MunicipalityViewSet, basename='municipality')
 
 urlpatterns = [
-    path('municipalityByDistrict/', MunicipalitiesByDistrictView.as_view(), name='municipalities-by-district'),
-    path('allMunicipalities/', AllMunicipalitiesView.as_view(), name='all-municipalities'),
+    path('', include(router.urls)),
 ]
