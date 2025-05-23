@@ -19,7 +19,7 @@ class PropertyMediaViewSet(viewsets.ModelViewSet):
         return PropertyMedia.objects.all()
 
     @swagger_auto_schema(
-        operation_summary="Criar mídia para propriedade",
+        operation_summary="Create a new Property-media",
         manual_parameters=[
             openapi.Parameter('property', openapi.IN_FORM, description="ID da propriedade", type=openapi.TYPE_INTEGER, required=True),
             openapi.Parameter('file', openapi.IN_FORM, description="Arquivos de mídia (imagens ou vídeos)", type=openapi.TYPE_FILE, required=True, multiple=True),
@@ -46,19 +46,19 @@ class PropertyMediaViewSet(viewsets.ModelViewSet):
 
         return Response(created_media, status=status.HTTP_201_CREATED)
 
-    @swagger_auto_schema(operation_summary="Listar mídias",)
+    @swagger_auto_schema(operation_summary="Get all Property-medias",)
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
-    @swagger_auto_schema(operation_summary="Obter mídia por ID",)
+    @swagger_auto_schema(operation_summary="Get Property-media by ID",)
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
 
-    @swagger_auto_schema(operation_summary="Atualizar mídia",)
+    @swagger_auto_schema(operation_summary="Update an existing Property-media",)
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
 
-    @swagger_auto_schema(operation_summary="Excluir mídia",)
+    @swagger_auto_schema(operation_summary="Detele a Property-media",)
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
     

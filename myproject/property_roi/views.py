@@ -36,23 +36,23 @@ class ROICalculationViewSet(viewsets.ModelViewSet):
         roi, profit = self.calculate_roi(self.request.data)
         serializer.save(roi_result=roi, profit=profit)
 
-    @swagger_auto_schema(operation_summary="Listar ROI")
+    @swagger_auto_schema(operation_summary="Get all Property-roi")
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
-    @swagger_auto_schema(operation_summary="Criar ROI")
+    @swagger_auto_schema(operation_summary="Create a new Property-roi")
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-    @swagger_auto_schema(operation_summary="Obter ROI por ID")
+    @swagger_auto_schema(operation_summary="Get Property-roi by ID")
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
 
-    @swagger_auto_schema(operation_summary="Atualizar ROI")
+    @swagger_auto_schema(operation_summary="Update an existing Property-roi")
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
 
-    @swagger_auto_schema(operation_summary="Excluir ROI")
+    @swagger_auto_schema(operation_summary="Delete a Property-roi")
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
     

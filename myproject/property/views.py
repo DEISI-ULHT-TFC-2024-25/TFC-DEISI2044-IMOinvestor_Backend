@@ -12,23 +12,23 @@ class PropertyViewSet(viewsets.ModelViewSet):
     serializer_class = PropertySerializer
     permission_classes = [permissions.AllowAny]
 
-    @swagger_auto_schema(operation_summary="Listar propriedades")
+    @swagger_auto_schema(operation_summary="Get all Properties")
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
-    @swagger_auto_schema(operation_summary="Criar propriedade")
+    @swagger_auto_schema(operation_summary="Create a new Property")
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-    @swagger_auto_schema(operation_summary="Obter propriedade por ID")
+    @swagger_auto_schema(operation_summary="Get Property by ID")
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
 
-    @swagger_auto_schema(operation_summary="Atualizar propriedade")
+    @swagger_auto_schema(operation_summary="Update an existing Property")
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
 
-    @swagger_auto_schema(operation_summary="Excluir propriedade")
+    @swagger_auto_schema(operation_summary="Delete a Property")
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
 
@@ -44,5 +44,21 @@ class PropertyViewSet(viewsets.ModelViewSet):
     @swagger_auto_schema(auto_schema=None)
     def partial_update(self, request, *args, **kwargs):
         raise MethodNotAllowed("PATCH")
+    
+    @action(detail=False, methods=["get"], url_path="with-announcement", permission_classes=[permissions.AllowAny])
+    @swagger_auto_schema(operation_summary="Properties with an announcement",)
+    def with_announcement(self, request):
+        properties = self.queryset.filter(announcement__isnull=False)
+        serializer = self.get_serializer(properties, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=["get"], url_path="without-announcement",
+            permission_classes=[permissions.AllowAny])
+    @swagger_auto_schema(operation_summary="Properties without an announcement",)
+    def without_announcement(self, request):
+        properties = self.queryset.filter(announcement__isnull=True)
+        serializer = self.get_serializer(properties, many=True)
+        return Response(serializer.data)
+
     
     

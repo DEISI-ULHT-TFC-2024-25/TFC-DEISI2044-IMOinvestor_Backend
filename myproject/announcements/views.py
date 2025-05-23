@@ -19,7 +19,7 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
     ordering_fields = ['price', 'created_date']
 
     @swagger_auto_schema(
-        operation_summary="Criar anúncio",
+        operation_summary="Create a new Announcement",
     )
     def create(self, request, *args, **kwargs):
         property_id = request.data.get("property")
@@ -36,7 +36,7 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
         return super().create(request, *args, **kwargs)
 
     @swagger_auto_schema(
-        operation_summary="Listar anúncios",
+        operation_summary="Get all Announcements",
         manual_parameters=[
             openapi.Parameter('district', openapi.IN_QUERY, description="Filtrar por distrito", type=openapi.TYPE_STRING),
             openapi.Parameter('municipality', openapi.IN_QUERY, description="Filtrar por município", type=openapi.TYPE_STRING),
@@ -49,19 +49,19 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
         return super().list(request, *args, **kwargs)
 
     @swagger_auto_schema(
-        operation_summary="Obter anúncio por ID",
+        operation_summary="Get Announcement by ID",
     )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
 
     @swagger_auto_schema(
-        operation_summary="Atualizar anúncio",
+        operation_summary="Update an existing Announcement",
     )
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
 
     @swagger_auto_schema(
-        operation_summary="Excluir anúncio",
+        operation_summary="Delete an Announcement",
     )
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)

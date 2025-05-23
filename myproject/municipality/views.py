@@ -14,23 +14,23 @@ class MunicipalityViewSet(viewsets.ModelViewSet):
     serializer_class = MunicipalitySerializer
     permission_classes = [permissions.AllowAny]
 
-    @swagger_auto_schema(operation_summary="Listar municípios")
+    @swagger_auto_schema(operation_summary="Get all Municipalities")
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
-    @swagger_auto_schema(operation_summary="Criar município")
+    @swagger_auto_schema(operation_summary="Create a new Municipality")
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-    @swagger_auto_schema(operation_summary="Obter município por ID")
+    @swagger_auto_schema(operation_summary="Get Municipality by ID")
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
 
-    @swagger_auto_schema(operation_summary="Atualizar município")
+    @swagger_auto_schema(operation_summary="Update an existing Municipality")
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
 
-    @swagger_auto_schema(operation_summary="Deletar município")
+    @swagger_auto_schema(operation_summary="Delete a Municipality")
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
     
@@ -44,7 +44,7 @@ class MunicipalityViewSet(viewsets.ModelViewSet):
         method='post',
         request_body=DistrictInputSerializer,
         responses={200: MunicipalitySerializer(many=True)},
-        operation_summary="Buscar municípios por ID do distrito"
+        operation_summary="Get Municipality by District ID"
     )
     @action(detail=False, methods=["post"], url_path="by-district")
     def by_district(self, request):
