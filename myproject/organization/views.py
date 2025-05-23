@@ -8,6 +8,7 @@ from .serializers import OrganizationSerializer
 from .permissions import IsTokenOrganization
 from django.conf import settings
 import jwt
+from rest_framework.exceptions import MethodNotAllowed
 
 
 class OrganizationViewSet(viewsets.ModelViewSet):
@@ -50,7 +51,7 @@ class OrganizationViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-    @swagger_auto_schema(operation_summary="Detalhar organização")
+    @swagger_auto_schema(operation_summary="Obter organização por ID")
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
 
@@ -61,3 +62,9 @@ class OrganizationViewSet(viewsets.ModelViewSet):
     @swagger_auto_schema(operation_summary="Excluir organização")
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
+    
+    def partial_update(self, request, *args, **kwargs):
+        raise MethodNotAllowed("PATCH")
+    @swagger_auto_schema(auto_schema=None)
+    def partial_update(self, request, *args, **kwargs):
+        raise MethodNotAllowed("PATCH")
