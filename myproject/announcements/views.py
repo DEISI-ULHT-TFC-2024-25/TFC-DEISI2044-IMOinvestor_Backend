@@ -1,9 +1,11 @@
 from rest_framework import viewsets, filters
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, MethodNotAllowed
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from rest_framework.exceptions import MethodNotAllowed
 
 from .models import Announcement
 from .serializers import AnnouncementSerializer
@@ -18,9 +20,7 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
     filterset_class = AnnouncementFilter
     ordering_fields = ['price', 'created_date']
 
-    @swagger_auto_schema(
-        operation_summary="Create a new Announcement",
-    )
+    @swagger_auto_schema(operation_summary="Create a new Announcement")
     def create(self, request, *args, **kwargs):
         property_id = request.data.get("property")
         organization_id = request.data.get("organization")
@@ -48,28 +48,31 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary="Get Announcement by ID",
-    )
+    @swagger_auto_schema(operation_summary="Get Announcement by ID")
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary="Update an existing Announcement",
-    )
+    @swagger_auto_schema(operation_summary="Update an existing Announcement")
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary="Delete an Announcement",
-    )
+    @swagger_auto_schema(operation_summary="Delete an Announcement")
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
-    
-    def partial_update(self, request, *args, **kwargs):
-        raise MethodNotAllowed("PATCH")
+
     @swagger_auto_schema(auto_schema=None)
     def partial_update(self, request, *args, **kwargs):
         raise MethodNotAllowed("PATCH")
-    
-    
+
+    @swagger_auto_schema(operation_summary="Get Announcements by Organization")
+    @action(detail=False, methods=['get'], url_path='my-organization', permission_classes=[IsAuthenticated])
+    def my_organization_announcements(self, request):
+        user = request.user
+        organizations = user.institution.all()
+
+        if not organizations.exists():
+            return Response({"detail": "User has no associated organizations."}, status=400)
+
+        announcements = self.queryset.filter(property__organization__in=organizations)
+        serializer = self.get_serializer(announcements, many=True)
+        return Response(serializer.data)
