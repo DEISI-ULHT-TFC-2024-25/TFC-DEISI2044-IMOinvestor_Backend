@@ -12,7 +12,6 @@ class Announcement(models.Model):
     expiry_date = models.DateTimeField(null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     is_active = models.BooleanField(default=True)
-    
 
 
     class Meta:

@@ -7,6 +7,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
+import organization
+from user_organizations.models import UserOrganization
+
 from .models import Announcement
 from .serializers import AnnouncementSerializer
 from .filters import AnnouncementFilter
@@ -64,15 +67,17 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
     def partial_update(self, request, *args, **kwargs):
         raise MethodNotAllowed("PATCH")
 
+
     @swagger_auto_schema(operation_summary="Get Announcements by Organization")
     @action(detail=False, methods=['get'], url_path='my-organization', permission_classes=[IsAuthenticated])
     def my_organization_announcements(self, request):
         user = request.user
-        organizations = user.institution.all()
 
-        if not organizations.exists():
+        organization_ids = UserOrganization.objects.filter(user=user).values_list('organization_id', flat=True)
+
+        if not organization_ids:
             return Response({"detail": "User has no associated organizations."}, status=400)
 
-        announcements = self.queryset.filter(property__organization__in=organizations)
+        announcements = self.queryset.filter(property__organization_id__in=organization_ids)
         serializer = self.get_serializer(announcements, many=True)
         return Response(serializer.data)
