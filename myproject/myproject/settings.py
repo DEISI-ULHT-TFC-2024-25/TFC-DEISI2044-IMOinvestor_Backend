@@ -142,7 +142,8 @@ DATABASES = {
         'NAME': 'tfc_db',
         'USER': 'postgres',  
         'PASSWORD': 'akash',  
-        #'PASSWORD': 'biro',  
+        #
+        # 'PASSWORD': 'biro',  
         'HOST': 'localhost',
         'PORT': '5432',
     }

@@ -5,12 +5,13 @@ from drf_yasg.utils import swagger_auto_schema
 from .models import Property
 from .serializers import PropertySerializer
 from rest_framework.exceptions import MethodNotAllowed
+from rest_framework.permissions import IsAuthenticated
 
 
 class PropertyViewSet(viewsets.ModelViewSet):
     queryset = Property.objects.all()
     serializer_class = PropertySerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.AllowAny]  # Adjust as needed
 
     @swagger_auto_schema(operation_summary="Get all Properties")
     def list(self, request, *args, **kwargs):
@@ -32,33 +33,32 @@ class PropertyViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
 
-    @action(detail=False, methods=["get"], url_path="organization/(?P<organization_id>[^/.]+)",
-            permission_classes=[permissions.AllowAny])
-    def by_organization(self, request, organization_id=None):
-        properties = self.queryset.filter(organization_id=organization_id)
-        serializer = self.get_serializer(properties, many=True)
-        return Response(serializer.data)
-    
-    def partial_update(self, request, *args, **kwargs):
-        raise MethodNotAllowed("PATCH")
     @swagger_auto_schema(auto_schema=None)
     def partial_update(self, request, *args, **kwargs):
         raise MethodNotAllowed("PATCH")
-    
+
     @action(detail=False, methods=["get"], url_path="with-announcement", permission_classes=[permissions.AllowAny])
-    @swagger_auto_schema(operation_summary="Properties with an announcement",)
+    @swagger_auto_schema(operation_summary="Properties with an announcement")
     def with_announcement(self, request):
         properties = self.queryset.filter(announcement__isnull=False)
         serializer = self.get_serializer(properties, many=True)
         return Response(serializer.data)
 
-    @action(detail=False, methods=["get"], url_path="without-announcement",
-            permission_classes=[permissions.AllowAny])
-    @swagger_auto_schema(operation_summary="Properties without an announcement",)
+    @action(detail=False, methods=["get"], url_path="without-announcement", permission_classes=[permissions.AllowAny])
+    @swagger_auto_schema(operation_summary="Properties without an announcement")
     def without_announcement(self, request):
         properties = self.queryset.filter(announcement__isnull=True)
         serializer = self.get_serializer(properties, many=True)
         return Response(serializer.data)
 
-    
-    
+    @action(detail=False, methods=["get"], url_path="my-organization", permission_classes=[IsAuthenticated])
+    @swagger_auto_schema(operation_summary="Get Properties by Authenticated User's Organization(s)")
+    def by_organization(self, request):
+        organization_ids = request.auth.get("organization_ids", []) if request.auth else []
+
+        if not organization_ids:
+            return Response({"detail": "No organization associated with this user."}, status=403)
+
+        properties = self.queryset.filter(organization_id__in=organization_ids)
+        serializer = self.get_serializer(properties, many=True)
+        return Response(serializer.data)
