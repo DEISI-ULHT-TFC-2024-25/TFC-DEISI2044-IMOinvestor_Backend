@@ -46,6 +46,19 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
             openapi.Parameter('price_min', openapi.IN_QUERY, description="Preço mínimo", type=openapi.TYPE_NUMBER),
             openapi.Parameter('price_max', openapi.IN_QUERY, description="Preço máximo", type=openapi.TYPE_NUMBER),
             openapi.Parameter('property_type', openapi.IN_QUERY, description="Filtrar por tipo de imóvel", type=openapi.TYPE_STRING),
+            openapi.Parameter('nova_construcao', openapi.IN_QUERY, description="Filtrar por nova construção", type=openapi.TYPE_STRING),
+            openapi.Parameter('preco_minimo', openapi.IN_QUERY, description="Filtrar por preço mínimo", type=openapi.TYPE_NUMBER),
+            openapi.Parameter('preco_maximo', openapi.IN_QUERY, description="Filtrar por preço máximo", type=openapi.TYPE_NUMBER),
+
+
+            openapi.Parameter('tipologia', openapi.IN_QUERY, description="Filtrar por tipologia", type=openapi.TYPE_STRING),
+            openapi.Parameter('numero_casas_banho', openapi.IN_QUERY, description="Filtrar por número de casas de banho", type=openapi.TYPE_INTEGER),
+            openapi.Parameter('certificado_energetico', openapi.IN_QUERY, description="Filtrar por certificado energético", type=openapi.TYPE_STRING),
+
+            openapi.Parameter('area_bruta', openapi.IN_QUERY, description="Filtrar por área bruta", type=openapi.TYPE_NUMBER),
+            openapi.Parameter('area_util', openapi.IN_QUERY, description="Filtrar por área útil", type=openapi.TYPE_NUMBER),
+    
+
         ]
     )
     def list(self, request, *args, **kwargs):
