@@ -9,10 +9,10 @@ class AnnouncementFilter(django_filters.FilterSet):
     property_type = django_filters.CharFilter(field_name="property__property_type", lookup_expr='iexact')
     area_bruta = django_filters.NumberFilter(field_name="property__area_bruta", lookup_expr='gte')
     area_util = django_filters.NumberFilter(field_name="property__area_util", lookup_expr='gte')
-    nova_construcao = django_filters.CharFilter(field_name="property__nova_construcao", lookup_expr='iexact')
-    numero_casas_banho = django_filters.NumberFilter(field_name="property__numero_casas_banho", lookup_expr='exact')
-    tipologia = django_filters.CharFilter(field_name="property__tipologia", lookup_expr='iexact')
-    certificado_energetico = django_filters.CharFilter(field_name="property__certificado_energetico", lookup_expr='iexact')
+    nova_construcao = django_filters.CharFilter(field_name="property__nova_construcao", lookup_expr='exact')
+    numero_casas_banho = django_filters.CharFilter(field_name="property__numero_casas_banho", lookup_expr='exact')
+    tipologia = django_filters.CharFilter(field_name="property__tipologia", lookup_expr='exact')
+    certificado_energetico = django_filters.CharFilter(field_name="property__certificado_energetico", lookup_expr='exact')
 
     class Meta:
         model = Announcement

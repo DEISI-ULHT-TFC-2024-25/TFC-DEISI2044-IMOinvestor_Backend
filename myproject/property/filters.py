@@ -6,8 +6,8 @@ class PropertyFilter(django_filters.FilterSet):
     municipality = django_filters.NumberFilter(field_name="municipality__id", lookup_expr="exact")
     area_bruta = django_filters.NumberFilter(field_name="area_bruta", lookup_expr='gte')
     area_util = django_filters.NumberFilter(field_name="area_util", lookup_expr='gte')
-    nova_construcao = django_filters.CharFilter(field_name="nova_construcao", lookup_expr='iexact')
-    property_type = django_filters.CharFilter(field_name="property_type", lookup_expr='iexact')
+    nova_construcao = django_filters.CharFilter(field_name="nova_construcao", lookup_expr='exact')
+    property_type = django_filters.CharFilter(field_name="property_type", lookup_expr='exact')
     preco_minimo = django_filters.NumberFilter(field_name="preco_minimo", lookup_expr='gte')
     preco_maximo = django_filters.NumberFilter(field_name="preco_maximo", lookup_expr='lte')
 
