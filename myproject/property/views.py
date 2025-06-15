@@ -78,14 +78,43 @@ class PropertyViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(properties, many=True)
         return Response(serializer.data)
 
+    
     @action(detail=False, methods=["get"], url_path="my-organization", permission_classes=[IsAuthenticated])
-    @swagger_auto_schema(operation_summary="Get Properties by Authenticated User's Organization(s)")
+    @swagger_auto_schema(
+        operation_summary="Get Properties by Authenticated User's Organization(s)",
+        manual_parameters=[
+            openapi.Parameter('district', openapi.IN_QUERY, description="Filtrar por distrito", type=openapi.TYPE_STRING),
+            openapi.Parameter('municipality', openapi.IN_QUERY, description="Filtrar por município", type=openapi.TYPE_STRING),
+            openapi.Parameter('price_min', openapi.IN_QUERY, description="Preço mínimo", type=openapi.TYPE_NUMBER),
+            openapi.Parameter('price_max', openapi.IN_QUERY, description="Preço máximo", type=openapi.TYPE_NUMBER),
+            openapi.Parameter('property_type', openapi.IN_QUERY, description="Filtrar por tipo de imóvel", type=openapi.TYPE_STRING),
+            openapi.Parameter('nova_construcao', openapi.IN_QUERY, description="Filtrar por nova construção", type=openapi.TYPE_STRING),
+            openapi.Parameter('preco_minimo', openapi.IN_QUERY, description="Filtrar por preço mínimo", type=openapi.TYPE_NUMBER),
+            openapi.Parameter('preco_maximo', openapi.IN_QUERY, description="Filtrar por preço máximo", type=openapi.TYPE_NUMBER),
+            openapi.Parameter('tipologia', openapi.IN_QUERY, description="Filtrar por tipologia", type=openapi.TYPE_STRING),
+            openapi.Parameter('numero_casas_banho', openapi.IN_QUERY, description="Filtrar por número de casas de banho", type=openapi.TYPE_INTEGER),
+            openapi.Parameter('certificado_energetico', openapi.IN_QUERY, description="Filtrar por certificado energético", type=openapi.TYPE_STRING),
+            openapi.Parameter('area_bruta', openapi.IN_QUERY, description="Filtrar por área bruta", type=openapi.TYPE_NUMBER),
+            openapi.Parameter('area_util', openapi.IN_QUERY, description="Filtrar por área útil", type=openapi.TYPE_NUMBER),
+        ]
+    )
     def by_organization(self, request):
         organization_ids = request.auth.get("organization_ids", []) if request.auth else []
-
+    
         if not organization_ids:
             return Response({"detail": "No organization associated with this user."}, status=403)
-
-        properties = self.queryset.filter(organization_id__in=organization_ids)
-        serializer = self.get_serializer(properties, many=True)
+    
+        # Filter properties by organization
+        base_queryset = self.queryset.filter(organization_id__in=organization_ids)
+    
+        # Apply filters using PropertyFilter
+        filtered_queryset = PropertyFilter(request.GET, queryset=base_queryset).qs
+    
+        page = self.paginate_queryset(filtered_queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+    
+        serializer = self.get_serializer(filtered_queryset, many=True)
         return Response(serializer.data)
+    
