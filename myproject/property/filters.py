@@ -10,7 +10,11 @@ class PropertyFilter(django_filters.FilterSet):
     property_type = django_filters.CharFilter(field_name="property_type", lookup_expr='exact')
     preco_minimo = django_filters.NumberFilter(field_name="preco_minimo", lookup_expr='gte')
     preco_maximo = django_filters.NumberFilter(field_name="preco_maximo", lookup_expr='lte')
+    
+    tipologia = django_filters.CharFilter(field_name="tipologia", lookup_expr='exact')
+    numero_casas_banho = django_filters.CharFilter(field_name="numero_casas_banho", lookup_expr='exact')
+    certificado_energetico = django_filters.CharFilter(field_name="certificado_energetico", lookup_expr='exact')
 
     class Meta:
         model = Property
-        fields = []
+        fields = [ ]
