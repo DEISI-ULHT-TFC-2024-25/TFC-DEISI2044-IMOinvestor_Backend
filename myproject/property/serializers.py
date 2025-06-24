@@ -5,7 +5,9 @@ from organization.models import*
 
 
 class PropertySerializer(serializers.ModelSerializer):
-    organization_id = serializers.PrimaryKeyRelatedField(queryset=Organization.objects.all(), source='organization', write_only=True)
+    ##organization_id = serializers.PrimaryKeyRelatedField(queryset=Organization.objects.all(), source='organization', write_only=True)
+    organization_id = serializers.IntegerField(source='organization.id', read_only=True)
+
     district = serializers.PrimaryKeyRelatedField(queryset=District.objects.all())
     municipality = serializers.PrimaryKeyRelatedField(queryset=Municipality.objects.all())
 
@@ -27,13 +29,12 @@ class PropertySerializer(serializers.ModelSerializer):
         model = Property
         fields = [
             'id',
-            'organization_id',
             'district',
             'municipality',
             'name',
             'street',
             'postal_code',
-            'property_type',  # now explicitly defined
+            'property_type', 
             'imagens',
             'typology',
             'num_wc',
@@ -45,4 +46,5 @@ class PropertySerializer(serializers.ModelSerializer):
             'energy_certf',  # now explicitly defined
             'description',
             'informacoes_adicionais',
+            'organization_id',
         ]

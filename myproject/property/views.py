@@ -1,3 +1,4 @@
+from nbformat import ValidationError
 from rest_framework import viewsets, permissions, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -6,7 +7,9 @@ from drf_yasg import openapi
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.permissions import IsAuthenticated
-from user_organizations.models import UserOrganization
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from organization.models import Organization
+
 
 
 from .models import Property
@@ -21,6 +24,12 @@ class PropertyViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_class = PropertyFilter
     ordering_fields = ['gross_area', 'net_area', 'min_price', 'max_price']
+
+
+    def get_permissions(self):
+        if self.action in ['create', 'update']:
+            return [IsAuthenticated()]
+        return [AllowAny()]
 
     @swagger_auto_schema(
         operation_summary="Get all Properties",
@@ -61,7 +70,18 @@ class PropertyViewSet(viewsets.ModelViewSet):
 
     @swagger_auto_schema(operation_summary="Create a new Property")
     def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
+        organization_ids = request.auth.get("organization_ids", []) if request.auth else []
+        if not organization_ids:
+            raise ValidationError("No organization associated with this user.")
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        organization = Organization.objects.get(id=organization_ids[0])
+        serializer.save(organization=organization)
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=201, headers=headers)
 
     @swagger_auto_schema(operation_summary="Get Property by ID")
     def retrieve(self, request, *args, **kwargs):
@@ -69,7 +89,19 @@ class PropertyViewSet(viewsets.ModelViewSet):
 
     @swagger_auto_schema(operation_summary="Update an existing Property")
     def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
+        organization_ids = request.auth.get("organization_ids", []) if request.auth else []
+        if not organization_ids:
+            raise ValidationError("No organization associated with this user.")
+        
+        mutable_data = request.data.copy()
+        mutable_data['organization_id'] = organization_ids[0]
+        
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=mutable_data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
 
     @swagger_auto_schema(operation_summary="Delete a Property")
     def destroy(self, request, *args, **kwargs):
