@@ -4,7 +4,6 @@ from property.serializers import PropertySerializer
 
 class AnnouncementSerializer(serializers.ModelSerializer):
     property = serializers.SerializerMethodField()
-    is_favourite = serializers.SerializerMethodField()
 
     class Meta:
         model = Announcement
@@ -26,7 +25,6 @@ class AnnouncementSerializer(serializers.ModelSerializer):
         else:
             return obj.property.id
 
-# New serializer that only serializes the announcement ID
 class AnnouncementIdSerializer(serializers.ModelSerializer):
     class Meta:
         model = Announcement

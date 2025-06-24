@@ -6,6 +6,8 @@ from drf_yasg import openapi
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.permissions import IsAuthenticated
+from user_organizations.models import UserOrganization
+
 
 from .models import Property
 from .serializers import PropertySerializer
@@ -132,21 +134,19 @@ class PropertyViewSet(viewsets.ModelViewSet):
         ]
     )
     def my_organization(self, request):
-        organizations = getattr(request.user, 'organizations', None)
-        if organizations is None:
-            return Response({"detail": "User has no organizations attribute."}, status=403)
-
-        organization_ids = organizations.all().values_list('id', flat=True)
+        organization_ids = request.auth.get("organization_ids", []) if request.auth else []
+    
         if not organization_ids:
             return Response({"detail": "No organization associated with this user."}, status=403)
-
+    
         base_queryset = self.queryset.filter(organization_id__in=organization_ids)
+    
         filtered_queryset = PropertyFilter(request.GET, queryset=base_queryset).qs
-
+    
         page = self.paginate_queryset(filtered_queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
-
+    
         serializer = self.get_serializer(filtered_queryset, many=True)
         return Response(serializer.data)
