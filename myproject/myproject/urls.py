@@ -34,4 +34,6 @@ urlpatterns = [
     path('api/property-roi/', include('property_roi.urls')),
     path('api/roles/', include('roles.urls')),
     path('api/municipality/', include('municipality.urls')),
+    path('api/investimentos/', include('investimentos.urls')),
+
 ]

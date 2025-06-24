@@ -6,15 +6,13 @@ from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from rest_framework import status
 
-import organization
 from user_organizations.models import UserOrganization
-
 from .models import Announcement
-from .serializers import AnnouncementSerializer
+from .serializers import AnnouncementSerializer, AnnouncementIdInputSerializer
 from .filters import AnnouncementFilter
 from property.models import Property
-
 
 class AnnouncementViewSet(viewsets.ModelViewSet):
     queryset = Announcement.objects.select_related('property').all()
@@ -41,24 +39,45 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
     @swagger_auto_schema(
         operation_summary="Get all Announcements",
         manual_parameters=[
-            openapi.Parameter('district', openapi.IN_QUERY, description="Filtrar por distrito", type=openapi.TYPE_STRING),
-            openapi.Parameter('municipality', openapi.IN_QUERY, description="Filtrar por município", type=openapi.TYPE_STRING),
-            openapi.Parameter('price_min', openapi.IN_QUERY, description="Preço mínimo", type=openapi.TYPE_NUMBER),
-            openapi.Parameter('price_max', openapi.IN_QUERY, description="Preço máximo", type=openapi.TYPE_NUMBER),
-            openapi.Parameter('property_type', openapi.IN_QUERY, description="Filtrar por tipo de imóvel", type=openapi.TYPE_STRING),
-            openapi.Parameter('nova_construcao', openapi.IN_QUERY, description="Filtrar por nova construção", type=openapi.TYPE_STRING),
-            openapi.Parameter('preco_minimo', openapi.IN_QUERY, description="Filtrar por preço mínimo", type=openapi.TYPE_NUMBER),
-            openapi.Parameter('preco_maximo', openapi.IN_QUERY, description="Filtrar por preço máximo", type=openapi.TYPE_NUMBER),
+            openapi.Parameter('district', openapi.IN_QUERY, description="Filter by district", type=openapi.TYPE_STRING),
+            openapi.Parameter('municipality', openapi.IN_QUERY, description="Filter by municipality", type=openapi.TYPE_STRING),
+            openapi.Parameter('price_min', openapi.IN_QUERY, description="Minimum price", type=openapi.TYPE_NUMBER),
+            openapi.Parameter('price_max', openapi.IN_QUERY, description="Maximum price", type=openapi.TYPE_NUMBER),
+            openapi.Parameter(
+            'is_active',
+            openapi.IN_QUERY,
+            description="Filter by active status",
+            type=openapi.TYPE_BOOLEAN,
+            enum=[True, False],
+            default=True
+        ),
 
+            openapi.Parameter('typology', openapi.IN_QUERY, description="Filter by typology", type=openapi.TYPE_STRING),
+            openapi.Parameter('num_wc', openapi.IN_QUERY, description="Filter by number of bathrooms", type=openapi.TYPE_INTEGER),
+            openapi.Parameter(
+                'property_type',
+                openapi.IN_QUERY,
+                description="Filter by property type",
+                type=openapi.TYPE_STRING,
+                enum=[choice[0] for choice in Property.TIPO_CHOICE]
+            ),
+            openapi.Parameter(
+                'new_construction',
+                openapi.IN_QUERY,
+                description="Filter by new construction status",
+                type=openapi.TYPE_STRING,
+                enum=[choice[0] for choice in Property.NOVA_CONSTRUCAO_CHOICES]
+            ),
+            openapi.Parameter(
+                'energy_certf',
+                openapi.IN_QUERY,
+                description="Filter by energy certificate",
+                type=openapi.TYPE_STRING,
+                enum=[choice[0] for choice in Property.CERTIFICADO_CHOICES]
+            ),
 
-            openapi.Parameter('tipologia', openapi.IN_QUERY, description="Filtrar por tipologia", type=openapi.TYPE_STRING),
-            openapi.Parameter('numero_casas_banho', openapi.IN_QUERY, description="Filtrar por número de casas de banho", type=openapi.TYPE_INTEGER),
-            openapi.Parameter('certificado_energetico', openapi.IN_QUERY, description="Filtrar por certificado energético", type=openapi.TYPE_STRING),
-
-            openapi.Parameter('area_bruta', openapi.IN_QUERY, description="Filtrar por área bruta", type=openapi.TYPE_NUMBER),
-            openapi.Parameter('area_util', openapi.IN_QUERY, description="Filtrar por área útil", type=openapi.TYPE_NUMBER),
-    
-
+            openapi.Parameter('gross_area', openapi.IN_QUERY, description="Filter by gross area", type=openapi.TYPE_NUMBER),
+            openapi.Parameter('net_area', openapi.IN_QUERY, description="Filter by net area", type=openapi.TYPE_NUMBER),
         ]
     )
     def list(self, request, *args, **kwargs):
@@ -80,7 +99,6 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
     def partial_update(self, request, *args, **kwargs):
         raise MethodNotAllowed("PATCH")
 
-
     @swagger_auto_schema(operation_summary="Get Announcements by Organization")
     @action(detail=False, methods=['get'], url_path='my-organization', permission_classes=[IsAuthenticated])
     def my_organization_announcements(self, request):
@@ -94,3 +112,47 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
         announcements = self.queryset.filter(property__organization_id__in=organization_ids)
         serializer = self.get_serializer(announcements, many=True)
         return Response(serializer.data)
+
+    @swagger_auto_schema(
+        operation_summary="Get user's favourite Announcements",
+        responses={200: AnnouncementSerializer(many=True)}
+    )
+    @action(detail=False, methods=['get'], url_path='favourites', permission_classes=[IsAuthenticated])
+    def favourites(self, request):
+        user = request.user
+        favourite_announcements = user.favourites.all()
+        serializer = self.get_serializer(favourite_announcements, many=True)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(
+        operation_summary="Add an Announcement to user's favourites",
+        request_body=AnnouncementIdInputSerializer
+    )
+    @action(detail=False, methods=['post'], url_path='add-favourite', permission_classes=[IsAuthenticated])
+    def add_favourite(self, request):
+        serializer = AnnouncementIdInputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        announcement_id = serializer.validated_data['id']
+
+        try:
+            announcement = Announcement.objects.get(pk=announcement_id)
+        except Announcement.DoesNotExist:
+            return Response({"detail": "Announcement not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        user = request.user
+        user.favourites.add(announcement)
+        return Response({"detail": "Added to favourites."}, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_summary="Remove an Announcement from user's favourites"
+    )
+    @action(detail=True, methods=['delete'], url_path='remove-favourite', permission_classes=[IsAuthenticated])
+    def remove_favourite(self, request, pk=None):
+        user = request.user
+        try:
+            announcement = Announcement.objects.get(pk=pk)
+        except Announcement.DoesNotExist:
+            return Response({"detail": "Announcement not found."}, status=404)
+
+        user.favourites.remove(announcement)
+        return Response({"detail": "Removed from favourites."}, status=200)

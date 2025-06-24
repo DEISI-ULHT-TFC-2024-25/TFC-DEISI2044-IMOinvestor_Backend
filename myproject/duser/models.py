@@ -27,7 +27,7 @@ class DUser(models.Model):
     last_modified_by = models.CharField(max_length=255, null=True, blank=True)
     last_modified_date = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
-
+    favourites = models.ManyToManyField("announcements.Announcement", related_name="favourited_by", blank=True)
 
     REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
     USERNAME_FIELD = 'user_name'

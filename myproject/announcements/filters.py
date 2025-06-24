@@ -7,13 +7,19 @@ class AnnouncementFilter(django_filters.FilterSet):
     price_min = django_filters.NumberFilter(field_name="price", lookup_expr='gte')
     price_max = django_filters.NumberFilter(field_name="price", lookup_expr='lte')
     property_type = django_filters.CharFilter(field_name="property__property_type", lookup_expr='iexact')
-    area_bruta = django_filters.NumberFilter(field_name="property__area_bruta", lookup_expr='gte')
-    area_util = django_filters.NumberFilter(field_name="property__area_util", lookup_expr='gte')
-    nova_construcao = django_filters.CharFilter(field_name="property__nova_construcao", lookup_expr='exact')
-    numero_casas_banho = django_filters.CharFilter(field_name="property__numero_casas_banho", lookup_expr='exact')
-    tipologia = django_filters.CharFilter(field_name="property__tipologia", lookup_expr='exact')
-    certificado_energetico = django_filters.CharFilter(field_name="property__certificado_energetico", lookup_expr='exact')
+    gross_area = django_filters.NumberFilter(field_name="property__gross_area", lookup_expr='gte')
+    net_area = django_filters.NumberFilter(field_name="property__net_area", lookup_expr='gte')
+    new_construction = django_filters.CharFilter(field_name="property__new_construction", lookup_expr='exact')
+    num_wc = django_filters.CharFilter(field_name="property__num_wc", lookup_expr='exact')
+    typology = django_filters.CharFilter(field_name="property__typology", lookup_expr='exact')
+    energy_certf = django_filters.CharFilter(field_name="property__energy_certf", lookup_expr='exact')
+    is_active = django_filters.BooleanFilter(field_name="is_active", lookup_expr='exact')
 
+
+
+    
+
+    
     class Meta:
         model = Announcement
         fields = [
@@ -22,10 +28,11 @@ class AnnouncementFilter(django_filters.FilterSet):
             'price_min',
             'price_max',
             'property_type',
-            'area_bruta',
-            'area_util',
-            'nova_construcao',
-            'numero_casas_banho',
-            'tipologia',
-            'certificado_energetico',
+            'gross_area',
+            'net_area',
+            'new_construction',
+            'num_wc',
+            'typology',
+            'energy_certf',
+            'is_active',
         ]

@@ -10,13 +10,13 @@ class PropertySerializer(serializers.ModelSerializer):
     municipality = serializers.PrimaryKeyRelatedField(queryset=Municipality.objects.all())
 
     property_type = serializers.ChoiceField(choices=Property.TIPO_CHOICE)
-    nova_construcao = serializers.ChoiceField(choices=Property.NOVA_CONSTRUCAO_CHOICES, required=False, allow_null=True)
-    certificado_energetico = serializers.ChoiceField(choices=Property.CERTIFICADO_CHOICES, required=False, allow_null=True)
+    new_construction = serializers.ChoiceField(choices=Property.NOVA_CONSTRUCAO_CHOICES, required=False, allow_null=True)
+    energy_certf = serializers.ChoiceField(choices=Property.CERTIFICADO_CHOICES, required=False, allow_null=True)
 
-    area_util = serializers.FloatField(required=False)
-    area_bruta = serializers.FloatField(required=False)
-    preco_minimo = serializers.FloatField(required=False)
-    preco_maximo = serializers.FloatField(required=False)
+    net_area = serializers.FloatField(required=False)
+    gross_area = serializers.FloatField(required=False)
+    min_price = serializers.FloatField(required=False)
+    max_price = serializers.FloatField(required=False)
 
     informacoes_adicionais = serializers.ListField(
         child=serializers.CharField(max_length=255),
@@ -35,14 +35,14 @@ class PropertySerializer(serializers.ModelSerializer):
             'postal_code',
             'property_type',  # now explicitly defined
             'imagens',
-            'tipologia',
-            'numero_casas_banho',
-            'area_util',
-            'area_bruta',
-            'preco_minimo',
-            'preco_maximo',
-            'nova_construcao',  # now explicitly defined
-            'certificado_energetico',  # now explicitly defined
-            'descricao',
+            'typology',
+            'num_wc',
+            'net_area',
+            'gross_area',
+            'min_price',
+            'max_price',
+            'new_construction',  # now explicitly defined
+            'energy_certf',  # now explicitly defined
+            'description',
             'informacoes_adicionais',
         ]

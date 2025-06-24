@@ -15,44 +15,43 @@ from .filters import PropertyFilter
 class PropertyViewSet(viewsets.ModelViewSet):
     queryset = Property.objects.all()
     serializer_class = PropertySerializer
-    permission_classes = [permissions.AllowAny] 
+    permission_classes = [permissions.AllowAny]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_class = PropertyFilter
-    ordering_fields = ['area_bruta', 'area_util', 'preco_minimo', 'preco_maximo']
+    ordering_fields = ['gross_area', 'net_area', 'min_price', 'max_price']
 
     @swagger_auto_schema(
         operation_summary="Get all Properties",
         manual_parameters=[
-            openapi.Parameter('district', openapi.IN_QUERY, description="Filtrar por distrito", type=openapi.TYPE_STRING),
-            openapi.Parameter('municipality', openapi.IN_QUERY, description="Filtrar por município", type=openapi.TYPE_STRING),
-            openapi.Parameter('price_min', openapi.IN_QUERY, description="Preço mínimo", type=openapi.TYPE_NUMBER),
-            openapi.Parameter('price_max', openapi.IN_QUERY, description="Preço máximo", type=openapi.TYPE_NUMBER),
+            openapi.Parameter('district', openapi.IN_QUERY, description="Filter by district", type=openapi.TYPE_STRING),
+            openapi.Parameter('municipality', openapi.IN_QUERY, description="Filter by municipality", type=openapi.TYPE_STRING),
+            openapi.Parameter('price_min', openapi.IN_QUERY, description="Minimum price", type=openapi.TYPE_NUMBER),
+            openapi.Parameter('price_max', openapi.IN_QUERY, description="Maximum price", type=openapi.TYPE_NUMBER),
             openapi.Parameter(
-                                'property_type',
-                                openapi.IN_QUERY,
-                                description="Filtrar por tipo de imóvel",
-                                type=openapi.TYPE_STRING,
-                                enum=[choice[0] for choice in Property.TIPO_CHOICE]
-                            ),
+                'property_type',
+                openapi.IN_QUERY,
+                description="Filter by property type",
+                type=openapi.TYPE_STRING,
+                enum=[choice[0] for choice in Property.TIPO_CHOICE]
+            ),
             openapi.Parameter(
-                                'nova_construcao',
-                                openapi.IN_QUERY,
-                                description="Filtrar por nova construção",
-                                type=openapi.TYPE_STRING,
-                                enum=[choice[0] for choice in Property.NOVA_CONSTRUCAO_CHOICES]
-                            ),
+                'new_construction',
+                openapi.IN_QUERY,
+                description="Filter by new construction status",
+                type=openapi.TYPE_STRING,
+                enum=[choice[0] for choice in Property.NOVA_CONSTRUCAO_CHOICES]
+            ),
             openapi.Parameter(
-                                'certificado_energetico',
-                                openapi.IN_QUERY,
-                                description="Filtrar por certificado energético",
-                                type=openapi.TYPE_STRING,
-                                enum=[choice[0] for choice in Property.CERTIFICADO_CHOICES]
-                            ),
-
-            openapi.Parameter('tipologia', openapi.IN_QUERY, description="Filtrar por tipologia", type=openapi.TYPE_STRING),
-            openapi.Parameter('numero_casas_banho', openapi.IN_QUERY, description="Filtrar por número de casas de banho", type=openapi.TYPE_INTEGER),
-            openapi.Parameter('area_bruta', openapi.IN_QUERY, description="Filtrar por área bruta", type=openapi.TYPE_NUMBER),
-            openapi.Parameter('area_util', openapi.IN_QUERY, description="Filtrar por área útil", type=openapi.TYPE_NUMBER),
+                'energy_certf',
+                openapi.IN_QUERY,
+                description="Filter by energy certificate",
+                type=openapi.TYPE_STRING,
+                enum=[choice[0] for choice in Property.CERTIFICADO_CHOICES]
+            ),
+            openapi.Parameter('typology', openapi.IN_QUERY, description="Filter by typology", type=openapi.TYPE_STRING),
+            openapi.Parameter('num_wc', openapi.IN_QUERY, description="Filter by number of bathrooms", type=openapi.TYPE_INTEGER),
+            openapi.Parameter('gross_area', openapi.IN_QUERY, description="Filter by gross area", type=openapi.TYPE_NUMBER),
+            openapi.Parameter('net_area', openapi.IN_QUERY, description="Filter by net area", type=openapi.TYPE_NUMBER),
         ]
     )
     def list(self, request, *args, **kwargs):
@@ -79,14 +78,14 @@ class PropertyViewSet(viewsets.ModelViewSet):
         raise MethodNotAllowed("PATCH")
 
     @action(detail=False, methods=["get"], url_path="with-announcement", permission_classes=[permissions.AllowAny])
-    @swagger_auto_schema(operation_summary="Properties with an announcement")
+    @swagger_auto_schema(operation_summary="Get Properties with an announcement")
     def with_announcement(self, request):
         properties = self.queryset.filter(announcement__isnull=False)
         serializer = self.get_serializer(properties, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=["get"], url_path="without-announcement", permission_classes=[permissions.AllowAny])
-    @swagger_auto_schema(operation_summary="Properties without an announcement")
+    @swagger_auto_schema(operation_summary="Get Properties without an announcement")
     def without_announcement(self, request):
         properties = self.queryset.filter(announcement__isnull=True)
         serializer = self.get_serializer(properties, many=True)
@@ -101,41 +100,38 @@ class PropertyViewSet(viewsets.ModelViewSet):
     @swagger_auto_schema(
         operation_summary="Get Properties by Authenticated User's Organization(s)",
         manual_parameters=[
-            openapi.Parameter('district', openapi.IN_QUERY, description="Filtrar por distrito", type=openapi.TYPE_STRING),
-            openapi.Parameter('municipality', openapi.IN_QUERY, description="Filtrar por município", type=openapi.TYPE_STRING),
-            openapi.Parameter('price_min', openapi.IN_QUERY, description="Preço mínimo", type=openapi.TYPE_NUMBER),
-            openapi.Parameter('price_max', openapi.IN_QUERY, description="Preço máximo", type=openapi.TYPE_NUMBER),
+            openapi.Parameter('district', openapi.IN_QUERY, description="Filter by district", type=openapi.TYPE_STRING),
+            openapi.Parameter('municipality', openapi.IN_QUERY, description="Filter by municipality", type=openapi.TYPE_STRING),
+            openapi.Parameter('price_min', openapi.IN_QUERY, description="Minimum price", type=openapi.TYPE_NUMBER),
+            openapi.Parameter('price_max', openapi.IN_QUERY, description="Maximum price", type=openapi.TYPE_NUMBER),
             openapi.Parameter(
-                                'property_type',
-                                openapi.IN_QUERY,
-                                description="Filtrar por tipo de imóvel",
-                                type=openapi.TYPE_STRING,
-                                enum=[choice[0] for choice in Property.TIPO_CHOICE]
-                            ),
+                'property_type',
+                openapi.IN_QUERY,
+                description="Filter by property type",
+                type=openapi.TYPE_STRING,
+                enum=[choice[0] for choice in Property.TIPO_CHOICE]
+            ),
             openapi.Parameter(
-                                'nova_construcao',
-                                openapi.IN_QUERY,
-                                description="Filtrar por nova construção",
-                                type=openapi.TYPE_STRING,
-                                enum=[choice[0] for choice in Property.NOVA_CONSTRUCAO_CHOICES]
-                            ),
+                'new_construction',
+                openapi.IN_QUERY,
+                description="Filter by new construction status",
+                type=openapi.TYPE_STRING,
+                enum=[choice[0] for choice in Property.NOVA_CONSTRUCAO_CHOICES]
+            ),
             openapi.Parameter(
-                                'certificado_energetico',
-                                openapi.IN_QUERY,
-                                description="Filtrar por certificado energético",
-                                type=openapi.TYPE_STRING,
-                                enum=[choice[0] for choice in Property.CERTIFICADO_CHOICES]
-                            ),
-            
-            openapi.Parameter('tipologia', openapi.IN_QUERY, description="Filtrar por tipologia", type=openapi.TYPE_STRING),
-            openapi.Parameter('numero_casas_banho', openapi.IN_QUERY, description="Filtrar por número de casas de banho", type=openapi.TYPE_INTEGER),
-            openapi.Parameter('area_bruta', openapi.IN_QUERY, description="Filtrar por área bruta", type=openapi.TYPE_NUMBER),
-            openapi.Parameter('area_util', openapi.IN_QUERY, description="Filtrar por área útil", type=openapi.TYPE_NUMBER),
+                'energy_certf',
+                openapi.IN_QUERY,
+                description="Filter by energy certificate",
+                type=openapi.TYPE_STRING,
+                enum=[choice[0] for choice in Property.CERTIFICADO_CHOICES]
+            ),
+            openapi.Parameter('typology', openapi.IN_QUERY, description="Filter by typology", type=openapi.TYPE_STRING),
+            openapi.Parameter('num_wc', openapi.IN_QUERY, description="Filter by number of bathrooms", type=openapi.TYPE_INTEGER),
+            openapi.Parameter('gross_area', openapi.IN_QUERY, description="Filter by gross area", type=openapi.TYPE_NUMBER),
+            openapi.Parameter('net_area', openapi.IN_QUERY, description="Filter by net area", type=openapi.TYPE_NUMBER),
         ]
     )
     def my_organization(self, request):
-        # Adapt this according to your actual User-Organization relationship:
-        # Example assumes user.organizations is a related manager for organizations
         organizations = getattr(request.user, 'organizations', None)
         if organizations is None:
             return Response({"detail": "User has no organizations attribute."}, status=403)
