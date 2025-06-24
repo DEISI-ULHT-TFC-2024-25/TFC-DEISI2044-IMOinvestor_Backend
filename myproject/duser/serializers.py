@@ -10,6 +10,8 @@ from django.utils import timezone
 from django.conf import settings
 from django.contrib.auth.hashers import check_password
 from rest_framework_simplejwt.tokens import RefreshToken
+from subscriptions.models import Subscription
+
 
 
 class DUserSerializer(serializers.ModelSerializer):
@@ -106,6 +108,15 @@ class LoginSerializer(serializers.Serializer):
 
         if not check_password(password, user.password):
             raise serializers.ValidationError("Invalid username or password")
+        
+
+        try:
+            subscription = user.subscription
+            if not subscription.is_valid():
+                raise serializers.ValidationError("Subscription expired. Please renew.")
+        except Subscription.DoesNotExist:
+            raise serializers.ValidationError("No active subscription found. Please subscribe.")
+
 
         user.last_login = timezone.now()
         user.save()

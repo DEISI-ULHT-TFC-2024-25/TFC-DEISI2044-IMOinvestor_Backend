@@ -29,6 +29,7 @@ class DUser(models.Model):
     is_active = models.BooleanField(default=True)
     favourites = models.ManyToManyField("announcements.Announcement", related_name="favourited_by", blank=True)
 
+
     REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
     USERNAME_FIELD = 'user_name'
 

@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     'property_roi',
     'property_media',
     'investimentos',
+    'subscriptions',
     
 
 

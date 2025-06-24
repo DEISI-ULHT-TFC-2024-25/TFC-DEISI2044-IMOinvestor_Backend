@@ -16,5 +16,5 @@ class CreateUserDTO(serializers.Serializer):
     lang_key = serializers.ChoiceField(choices=[('PT', 'Portuguese'), ('ENG', 'English')])
     activated = serializers.BooleanField()
     created_by = serializers.CharField(max_length=255,default="system")
-    role_id = serializers.IntegerField(write_only=True)  # New field added here
+    role_id = serializers.IntegerField(write_only=True) 
 

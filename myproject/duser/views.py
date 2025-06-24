@@ -6,11 +6,13 @@ from .serializers import DUserSerializer
 
 from rest_framework.views import APIView
 from rest_framework.authtoken.views import ObtainAuthToken
+from subscriptions.models import Subscription
 
 from .serializers import LoginSerializer
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework.authtoken.models import Token
-
+import secrets
+from django.utils import timezone
+from datetime import timedelta
 
 
 from .serializers import UpdateUserSerializer
@@ -21,29 +23,38 @@ from django.conf import settings
 import jwt
 
 
-
-
+def simulate_payment():
+    return True
 class CreateUserView(APIView):
-
 
     @swagger_auto_schema(request_body=DUserSerializer)
     def post(self, request):
-
         dto = CreateUserDTO(data=request.data)
         if not dto.is_valid():
             return Response(dto.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        # Convert phone_number to string explicitly
+        if not simulate_payment():
+            return Response({"error": "Payment failed or invalid."}, status=status.HTTP_402_PAYMENT_REQUIRED)
+
         data = dict(dto.validated_data)
-        
-        serializer = DUserSerializer(data=data) 
+        serializer = DUserSerializer(data=data)
 
         if serializer.is_valid():
             user = serializer.save()
-            return Response(DUserSerializer(user).data, status=status.HTTP_201_CREATED)
+
+            subscription_token = secrets.token_urlsafe(32)
+            Subscription.objects.create(
+                user=user,
+                token=subscription_token,
+                created_at=timezone.now(),
+                expires_at=timezone.now() + timedelta(days=30)
+            )
+
+            response_data = DUserSerializer(user).data
+            response_data['subscription_token'] = subscription_token  # optionally return it
+            return Response(response_data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class LoginView(APIView):
 
