@@ -9,7 +9,11 @@ class PropertySerializer(serializers.ModelSerializer):
     organization_id = serializers.IntegerField(source='organization.id', read_only=True)
 
     district = serializers.PrimaryKeyRelatedField(queryset=District.objects.all())
+    district_name = serializers.SerializerMethodField(read_only=True)
+
     municipality = serializers.PrimaryKeyRelatedField(queryset=Municipality.objects.all())
+    municipality_name = serializers.SerializerMethodField(read_only=True)
+
 
     property_type = serializers.ChoiceField(choices=Property.TIPO_CHOICE)
     new_construction = serializers.ChoiceField(choices=Property.NOVA_CONSTRUCAO_CHOICES, required=False, allow_null=True)
@@ -25,12 +29,21 @@ class PropertySerializer(serializers.ModelSerializer):
         required=False
     )
 
+
+    def get_district_name(self, obj):
+        return obj.district.name if obj.district else None
+
+    def get_municipality_name(self, obj):
+        return obj.municipality.name if obj.municipality else None
+
     class Meta:
         model = Property
         fields = [
             'id',
             'district',
+            'district_name',        
             'municipality',
+            'municipality_name',
             'name',
             'street',
             'postal_code',
