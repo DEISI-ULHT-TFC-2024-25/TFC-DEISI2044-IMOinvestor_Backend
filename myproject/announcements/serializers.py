@@ -53,3 +53,14 @@ class AnnouncementIdSerializer(serializers.ModelSerializer):
         fields = ['id']
 class AnnouncementIdInputSerializer(serializers.Serializer):
     id = serializers.IntegerField()
+
+
+class AnnouncementUpdateSerializer(serializers.ModelSerializer):
+    property_id = serializers.PrimaryKeyRelatedField(
+        queryset=Property.objects.all(),
+        source='property'
+    )
+
+    class Meta:
+        model = Announcement
+        fields = ['property_id', 'price']

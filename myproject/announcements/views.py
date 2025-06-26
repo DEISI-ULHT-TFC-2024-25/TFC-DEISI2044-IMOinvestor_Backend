@@ -2,7 +2,7 @@ from rest_framework import viewsets, filters, status
 from rest_framework.exceptions import ValidationError, MethodNotAllowed
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -10,7 +10,7 @@ from drf_yasg import openapi
 from announcements.filters import AnnouncementFilter
 from user_organizations.models import UserOrganization
 from .models import Announcement
-from .serializers import AnnouncementSerializer, AnnouncementInputSerializer, AnnouncementIdInputSerializer
+from .serializers import AnnouncementSerializer, AnnouncementInputSerializer, AnnouncementIdInputSerializer, AnnouncementUpdateSerializer
 from property.models import Property
 
 
@@ -21,6 +21,16 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_class = AnnouncementFilter
     ordering_fields = ['price', 'created_date']
+
+
+    def get_permissions(self):
+        if self.action == 'list':
+            # Allow any user (even unauthenticated) to access list
+            permission_classes = [AllowAny]
+        else:
+            # Require authentication for all other actions
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
     def perform_create(self, serializer):
         user = self.request.user
@@ -36,10 +46,13 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
 
 
     def get_serializer_class(self):
-        # Use input serializer for POST/PUT, output serializer otherwise
-        if self.request.method in ['POST', 'PUT']:
+        if self.action == 'create':
             return AnnouncementInputSerializer
-        return AnnouncementSerializer
+        elif self.action == 'update' or self.action == 'partial_update':
+            return AnnouncementUpdateSerializer
+        else:
+            return AnnouncementSerializer
+
 
     @swagger_auto_schema(request_body=AnnouncementInputSerializer, operation_summary="Create a new Announcement")
     def create(self, request, *args, **kwargs):
@@ -57,7 +70,10 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
 
         return super().create(request, *args, **kwargs)
 
-    @swagger_auto_schema(request_body=AnnouncementInputSerializer, operation_summary="Update an existing Announcement")
+    @swagger_auto_schema(
+    request_body=AnnouncementUpdateSerializer,
+    operation_summary="Update an existing Announcement"
+    )
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
 
