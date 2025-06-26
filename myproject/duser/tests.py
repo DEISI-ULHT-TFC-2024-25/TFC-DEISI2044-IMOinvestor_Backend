@@ -11,6 +11,7 @@ from district.models import District
 from municipality.models import Municipality
 from organization.models import Organization
 from duser.models import DUser
+from property_roi.models import ROICalculation
 from subscriptions.models import Subscription
 from property.models import Property
 from announcements.models import Announcement  # Assuming your Announcement model is here
@@ -94,6 +95,21 @@ class ModelsTestCase(TestCase):
             min_price=150000.00,
             max_price=160000.00
         )
+
+
+        self.list_url = reverse('roi-calculation-list')  
+
+        self.valid_payload = {
+            "purchase_price": "100000.00",
+            "closing_costs": "5000.00",
+            "repair_costs": "10000.00",
+            "after_repair_value": "130000.00",
+            "holding_costs": "2000.00",
+            "selling_costs": "3000.00"
+        }
+
+
+        self.url = reverse('update-subscription')
 
         self.client = APIClient()
 
@@ -187,7 +203,7 @@ class ModelsTestCase(TestCase):
         self.assertEqual(announcement.created_by, self.user.user_name)
         print("Test Passed: Announcement model creation")
 
-        
+
     def test_announcement_api_list(self):
         url = reverse('announcement-list')
 
@@ -196,5 +212,66 @@ class ModelsTestCase(TestCase):
         response = self.client.get(url)
         print("Announcement API list response:", response.status_code, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(len(response.data) >= 0)  # You can check >= 1 if you expect data
+        self.assertTrue(len(response.data) >= 0)  
         print("Test Passed: Announcement API list")
+
+
+
+    def test_create_roi_calculation(self):
+        response = self.client.post(self.list_url, data=self.valid_payload, format='json')
+        print("Create ROI Calculation response:", response.status_code, response.data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Check if roi_result and profit are calculated and saved
+        self.assertIn('roi_result', response.data)
+        self.assertIn('profit', response.data)
+
+        # Validate ROI calculation manually (rough check)
+        total_cost = 100000 + 5000 + 10000 + 2000 + 3000
+        profit = 130000 - total_cost
+        investment = 100000 + 5000 + 10000
+        expected_roi = (profit / investment) * 100 if investment != 0 else 0
+
+        self.assertAlmostEqual(float(response.data['roi_result']), expected_roi, places=2)
+        self.assertAlmostEqual(float(response.data['profit']), profit, places=2)
+
+    def test_list_roi_calculations(self):
+        # Create one object first
+        ROICalculation.objects.create(
+            purchase_price=100000,
+            closing_costs=5000,
+            repair_costs=10000,
+            after_repair_value=130000,
+            holding_costs=2000,
+            selling_costs=3000,
+            roi_result=15.0,
+            profit=10000.0
+        )
+        response = self.client.get(self.list_url)
+        print("List ROI Calculations response:", response.status_code, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(len(response.data) >= 1)
+
+
+
+
+    def test_update_subscription_creates_and_updates(self):
+            # Authenticate user
+            self.client.force_authenticate(user=self.user)
+
+
+            # Validate subscription exists
+            subscription = Subscription.objects.get(user=self.user)
+            self.assertIsNotNone(subscription.token)
+            self.assertTrue(subscription.expires_at > timezone.now())
+
+            old_token = subscription.token
+
+            response2 = self.client.put(self.url)
+            print("Second update subscription response:", response2.status_code, response2.data)
+            self.assertEqual(response2.status_code, status.HTTP_200_OK)
+            self.assertEqual(response2.data['message'], 'Subscription updated')
+
+            # Check token changed
+            subscription.refresh_from_db()
+            self.assertNotEqual(subscription.token, old_token)

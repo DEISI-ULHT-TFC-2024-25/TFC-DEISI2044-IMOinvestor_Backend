@@ -59,8 +59,9 @@ class AnnouncementUpdateSerializer(serializers.ModelSerializer):
     property_id = serializers.PrimaryKeyRelatedField(
         queryset=Property.objects.all(),
         source='property'
+
     )
 
     class Meta:
         model = Announcement
-        fields = ['property_id', 'price']
+        fields = ['property_id', 'price','is_active']
