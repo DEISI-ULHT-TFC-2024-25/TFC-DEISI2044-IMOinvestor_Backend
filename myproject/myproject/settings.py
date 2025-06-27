@@ -45,6 +45,18 @@ SWAGGER_SETTINGS = {
 }
 
 
+
+import os
+
+DJANGO_ENV = os.environ.get("DJANGO_ENV", "production")
+
+if DJANGO_ENV == "local":
+    CELERY_TASK_ALWAYS_EAGER = False
+    CELERY_BROKER_URL = 'redis://localhost:6379'
+else:
+    CELERY_TASK_ALWAYS_EAGER = True  # roda tasks diretamente (sem Redis)
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -143,8 +155,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'tfc_db',
         'USER': 'postgres',  
-        'PASSWORD': 'akash',  
-        # 'PASSWORD': 'biro',  
+        #'PASSWORD': 'akash',  
+        'PASSWORD': 'biro',  
         'HOST': 'localhost',
         'PORT': '5432',
     }
